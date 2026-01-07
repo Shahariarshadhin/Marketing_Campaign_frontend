@@ -87,9 +87,9 @@ export default function DashboardLayout({ children }) {
       hasSubmenu: true,
       submenu: [
         { label: "Brand Management", link: "/dashboard/brands", icon: Tag },
-        { label: "Model Management", link: "/dashboard/models", icon: Grid3x3 },
-        { label: "Color Management", link: "/dashboard/colors", icon: Palette },
-        { label: "Storage Management", link: "/dashboard/storages", icon: Database },
+        // { label: "Model Management", link: "/dashboard/models", icon: Grid3x3 },
+        // { label: "Color Management", link: "/dashboard/colors", icon: Palette },
+        // { label: "Storage Management", link: "/dashboard/storages", icon: Database },
       ],
     },
 
