@@ -97,7 +97,7 @@ export default function CampaignList({
                   />
                   <span className="text-sm text-gray-700">On/Off</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer opacity-50 cursor-not-allowed">
+                <label className="flex items-center gap-2 cursor-pointer opacity-50">
                   <input
                     type="checkbox"
                     checked={true}
@@ -187,7 +187,7 @@ export default function CampaignList({
                   />
                   <span className="text-sm text-gray-700">Ends</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer opacity-50 cursor-not-allowed">
+                <label className="flex items-center gap-2 cursor-pointer opacity-50">
                   <input
                     type="checkbox"
                     checked={true}
