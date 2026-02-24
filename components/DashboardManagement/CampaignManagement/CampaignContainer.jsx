@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -7,7 +6,8 @@ import ManageFields from './ManageCustomFields';
 import CampaignList from './CampaignList';
 
 
-const API_URL = 'http://localhost:5000/api/campaigns';
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/campaigns`;
+const CUSTOM_FIELDS_URL = `${process.env.NEXT_PUBLIC_API_URL}/custom-fields`;
 
 export default function CampaignManager() {
     const [currentView, setCurrentView] = useState('list');
@@ -92,7 +92,7 @@ export default function CampaignManager() {
 
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Server is not responding with JSON. Make sure backend is running on port 5000");
+                throw new Error("Server is not responding with JSON. Make sure backend is running.");
             }
 
             const data = await response.json();
@@ -104,7 +104,7 @@ export default function CampaignManager() {
             }
         } catch (err) {
             if (err.message.includes('Failed to fetch')) {
-                setError('Cannot connect to backend. Please ensure the server is running on http://localhost:5000');
+                setError(`Cannot connect to backend. Please ensure the server is running at ${process.env.NEXT_PUBLIC_API_URL}`);
             } else {
                 setError('Error: ' + err.message);
             }
@@ -116,7 +116,7 @@ export default function CampaignManager() {
 
     const fetchCustomFields = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/custom-fields');
+            const response = await fetch(CUSTOM_FIELDS_URL);
             if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
@@ -339,7 +339,7 @@ export default function CampaignManager() {
 
     const addCustomField = async (fieldData) => {
         try {
-            const response = await fetch('http://localhost:5000/api/custom-fields', {
+            const response = await fetch(CUSTOM_FIELDS_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fieldData)
@@ -361,7 +361,7 @@ export default function CampaignManager() {
         if (!confirm('Are you sure you want to delete this field?')) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/custom-fields/${id}`, {
+            const response = await fetch(`${CUSTOM_FIELDS_URL}/${id}`, {
                 method: 'DELETE'
             });
 
