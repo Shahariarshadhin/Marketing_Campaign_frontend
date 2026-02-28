@@ -49,13 +49,14 @@ export default function DashboardLayout({ children }) {
 
   const navItems = [
     { icon: Home, label: "Dashboard", link: "/dashboard" },
-    {
-      icon: BarChart3, label: "Campaign", hasSubmenu: true,
-      submenu: [
-        { label: "Create Campaign", link: "/dashboard/campaign/create", icon: PlusCircle },
-        { label: "Campaigns", link: "/dashboard/campaign", icon: List },
-      ],
-    },
+    { icon: BarChart3, label: "Campaign", link: "/dashboard/campaign" },
+    // {
+    //   icon: BarChart3, label: "Campaign", hasSubmenu: true,
+    //   submenu: [
+    //     { label: "Create Campaign", link: "/dashboard/campaign/create", icon: PlusCircle },
+    //     { label: "Campaigns", link: "/dashboard/campaign", icon: List },
+    //   ],
+    // },
     // {
     //   icon: Megaphone, label: "Advertisement", hasSubmenu: true,
     //   submenu: [
