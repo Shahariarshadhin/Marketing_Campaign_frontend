@@ -3,40 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
 import { useRouter } from "next/navigation";
-import { LogOut, Megaphone } from "lucide-react";
+import { LogOut, Megaphone, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-
-// Builtin field renderers
-const BUILTIN_RENDERERS = {
-  name: (c) => (
-    <div className="flex items-center gap-2">
-      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.active ? "bg-green-500" : "bg-gray-400"}`} />
-      <span className="font-medium text-gray-800">{c.name}</span>
-    </div>
-  ),
-  delivery:      (c) => c.delivery || "—",
-  status:        (c) => (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-      c.status === "active" ? "bg-green-100 text-green-700" :
-      c.status === "draft"  ? "bg-gray-100 text-gray-600" :
-                              "bg-yellow-100 text-yellow-700"
-    }`}>{c.status}</span>
-  ),
-  actions:       (c) => c.actions || "—",
-  results:       (c) => c.results || "—",
-  costPerResult: (c) => c.costPerResult || "—",
-  budget:        (c) => <span className="font-medium">{c.budget || "—"}</span>,
-  amountSpent:   (c) => c.amountSpent || "—",
-  impressions:   (c) => c.impressions || "—",
-  reach:         (c) => c.reach || "—",
-  endDate:       (c) => c.endDate || "—",
-  active:        (c) => (
-    <span className={`text-xs px-2 py-0.5 rounded-full ${c.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-      {c.active ? "On" : "Off"}
-    </span>
-  ),
-};
 
 const BUILTIN_LABELS = {
   name: "Campaign", delivery: "Delivery", status: "Status", actions: "Actions",
@@ -51,10 +21,11 @@ export default function ViewerDashboard() {
   const router = useRouter();
   const redirected = useRef(false);
 
-  const [campaigns, setCampaigns] = useState([]);
+  const [campaigns, setCampaigns]     = useState([]);
   const [customFields, setCustomFields] = useState([]);
-  const [fetching, setFetching] = useState(true);
-  const [error, setError] = useState("");
+  const [contentMap, setContentMap]   = useState({}); // campaignId -> has content?
+  const [fetching, setFetching]       = useState(true);
+  const [error, setError]             = useState("");
 
   useEffect(() => {
     if (loading || redirected.current) return;
@@ -69,8 +40,24 @@ export default function ViewerDashboard() {
       authFetch(`${API}/custom-fields`).then(r => r.json()),
     ])
       .then(([campData, cfData]) => {
-        if (campData.success) setCampaigns(campData.data);
-        else setError("Failed to load campaigns");
+        if (campData.success) {
+          setCampaigns(campData.data);
+          // Check which campaigns have content
+          Promise.all(
+            campData.data.map(c =>
+              authFetch(`${API}/campaign-content/${c._id}`)
+                .then(r => r.json())
+                .then(d => ({ id: c._id, hasContent: !!(d.success && d.data) }))
+                .catch(() => ({ id: c._id, hasContent: false }))
+            )
+          ).then(results => {
+            const map = {};
+            results.forEach(r => { map[r.id] = r.hasContent; });
+            setContentMap(map);
+          });
+        } else {
+          setError("Failed to load campaigns");
+        }
         if (cfData.success) setCustomFields(cfData.data);
       })
       .catch(err => setError(err.message))
@@ -83,15 +70,31 @@ export default function ViewerDashboard() {
     </div>;
   }
 
-  // Build the column list based on what the admin allowed for this viewer
   const allowedKeys = user.visibleFields?.length
     ? user.visibleFields
-    : Object.keys(BUILTIN_LABELS); // fallback: all builtin
+    : Object.keys(BUILTIN_LABELS);
 
-  // Build column definitions from allowedKeys
+  // Build column renderers
   const columns = allowedKeys.map(key => {
+    if (key === 'name') {
+      return {
+        key,
+        label: 'Campaign',
+        render: (c) => (
+          <Link
+            href={`/viewer/campaign/${c._id}`}
+            className="group flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition"
+          >
+            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.active ? "bg-green-500" : "bg-gray-400"}`} />
+            <span className="group-hover:underline">{c.name}</span>
+            {/* {contentMap[c._id] && (
+              <ExternalLink size={12} className="opacity-0 group-hover:opacity-60 flex-shrink-0 transition" />
+            )} */}
+          </Link>
+        )
+      };
+    }
     if (key.startsWith("custom_")) {
-      // Custom field
       const fieldName = key.replace("custom_", "");
       const cf = customFields.find(f => f.name === fieldName);
       return {
@@ -105,16 +108,40 @@ export default function ViewerDashboard() {
         }
       };
     }
-    // Builtin field
+    // Builtin renderers
+    const renderers = {
+      delivery:      (c) => c.delivery || "—",
+      status:        (c) => (
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+          c.status === "active" ? "bg-green-100 text-green-700" :
+          c.status === "draft"  ? "bg-gray-100 text-gray-600" :
+                                  "bg-yellow-100 text-yellow-700"
+        }`}>{c.status}</span>
+      ),
+      actions:       (c) => c.actions || "—",
+      results:       (c) => c.results || "—",
+      costPerResult: (c) => c.costPerResult || "—",
+      budget:        (c) => <span className="font-medium">{c.budget || "—"}</span>,
+      amountSpent:   (c) => c.amountSpent || "—",
+      impressions:   (c) => c.impressions || "—",
+      reach:         (c) => c.reach || "—",
+      endDate:       (c) => c.endDate || "—",
+      active:        (c) => (
+        <span className={`text-xs px-2 py-0.5 rounded-full ${c.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+          {c.active ? "On" : "Off"}
+        </span>
+      ),
+    };
     return {
       key,
       label: BUILTIN_LABELS[key] || key,
-      render: BUILTIN_RENDERERS[key] || ((c) => c[key] || "—"),
+      render: renderers[key] || ((c) => c[key] || "—"),
     };
   }).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -122,7 +149,7 @@ export default function ViewerDashboard() {
           </div>
           <div>
             <h1 className="font-semibold text-gray-800">Campaign Dashboard</h1>
-            <p className="text-xs text-gray-500">Viewer Access</p>
+            <p className="text-xs text-gray-500">Click a campaign name to view its content</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -144,7 +171,9 @@ export default function ViewerDashboard() {
             <span className="text-sm text-gray-500">{campaigns.length} campaign(s)</span>
           </div>
 
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          )}
 
           {fetching ? (
             <div className="text-center py-16">
@@ -184,7 +213,7 @@ export default function ViewerDashboard() {
                 </table>
               </div>
               <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-500">
-                {campaigns.length} result(s) · {columns.length} column(s) visible
+                {campaigns.length} result(s) · {columns.length} column(s) visible · Click a campaign name to view media content
               </div>
             </div>
           )}

@@ -7,6 +7,7 @@ import { useAuthFetch } from '@/hooks/useAuthFetch';
 import CreateCampaign from './CreateCampaign';
 import ManageFields from './ManageCustomFields';
 import CampaignList from './CampaignList';
+import { useAuth } from '@/context/AuthContext';
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/campaigns`;
 const CUSTOM_FIELDS_URL = `${process.env.NEXT_PUBLIC_API_URL}/custom-fields`;
@@ -20,6 +21,7 @@ export default function CampaignManager() {
     const [editingCampaign, setEditingCampaign] = useState(null);
     const [customFields, setCustomFields] = useState([]);
     const [showColumnManager, setShowColumnManager] = useState(false);
+    const { user } = useAuth();
 
     const [visibleColumns, setVisibleColumns] = useState({
         checkbox: true, toggle: true, campaign: true, delivery: true, actions: true,
@@ -221,5 +223,5 @@ export default function CampaignManager() {
         visibleColumns={visibleColumns} showColumnManager={showColumnManager} setShowColumnManager={setShowColumnManager}
         toggleColumn={toggleColumn} showAllColumns={showAllColumns} hideAllColumns={hideAllColumns}
         onCreateClick={() => setCurrentView('create')} onManageFieldsClick={() => setCurrentView('manage-fields')}
-        onEdit={editCampaign} onToggle={toggleCampaign} onDuplicate={duplicateCampaign} onDelete={deleteCampaign} />;
+        onEdit={editCampaign} onToggle={toggleCampaign} onDuplicate={duplicateCampaign} onDelete={deleteCampaign} userRole={user?.role} />;
 }

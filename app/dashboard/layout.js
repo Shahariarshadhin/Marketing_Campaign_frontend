@@ -56,22 +56,22 @@ export default function DashboardLayout({ children }) {
         { label: "Campaigns", link: "/dashboard/campaign", icon: List },
       ],
     },
-    {
-      icon: Megaphone, label: "Advertisement", hasSubmenu: true,
-      submenu: [
-        { label: "Create Advertisement", link: "/dashboard/advertise/create-advertisement-content", icon: PlusCircle },
-        { label: "Advertisement List", link: "/dashboard/advertise/advertise-list", icon: List },
-      ],
-    },
+    // {
+    //   icon: Megaphone, label: "Advertisement", hasSubmenu: true,
+    //   submenu: [
+    //     { label: "Create Advertisement", link: "/dashboard/advertise/create-advertisement-content", icon: PlusCircle },
+    //     { label: "Advertisement List", link: "/dashboard/advertise/advertise-list", icon: List },
+    //   ],
+    // },
     { icon: Users, label: "Users", link: "/dashboard/users" },
-    {
-      icon: Package, label: "Product Config", hasSubmenu: true,
-      submenu: [
-        { label: "Brand Management", link: "/dashboard/brands", icon: Tag },
-      ],
-    },
-    { icon: FileText, label: "Projects", link: "/dashboard/projects" },
-    { icon: Settings, label: "Settings", link: "/dashboard/settings" },
+    // {
+    //   icon: Package, label: "Product Config", hasSubmenu: true,
+    //   submenu: [
+    //     { label: "Brand Management", link: "/dashboard/brands", icon: Tag },
+    //   ],
+    // },
+    // { icon: FileText, label: "Projects", link: "/dashboard/projects" },
+    // { icon: Settings, label: "Settings", link: "/dashboard/settings" },
   ];
 
   return (

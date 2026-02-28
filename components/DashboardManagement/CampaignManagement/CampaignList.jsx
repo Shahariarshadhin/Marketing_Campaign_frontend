@@ -1,5 +1,6 @@
 
 import { Copy, Edit, Plus, Settings, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CampaignList({
   campaigns,
@@ -17,9 +18,10 @@ export default function CampaignList({
   onEdit,
   onToggle,
   onDuplicate,
-  onDelete
+  onDelete,
+  userRole,
 }) {
-  
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="w-full mx-auto">
@@ -28,21 +30,21 @@ export default function CampaignList({
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-semibold text-gray-800">Campaigns</h1>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setShowColumnManager(!showColumnManager)}
                 className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
               >
                 <Settings size={18} />
                 Columns
               </button>
-              <button 
+              <button
                 onClick={onManageFieldsClick}
                 className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
               >
                 <Plus size={18} />
                 Manage Fields
               </button>
-              <button 
+              <button
                 onClick={onCreateClick}
                 className="flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
               >
@@ -197,7 +199,7 @@ export default function CampaignList({
                   <span className="text-sm text-gray-700">Actions (Always Visible)</span>
                 </label>
               </div>
-              
+
               {/* Custom Fields Section */}
               {customFields.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
@@ -308,30 +310,34 @@ export default function CampaignList({
                           <td className="px-4 py-3">
                             <button
                               onClick={() => onToggle(campaign._id)}
-                              className={`w-10 h-6 rounded-full transition ${
-                                campaign.active ? 'bg-blue-600' : 'bg-gray-300'
-                              } relative`}
+                              className={`w-10 h-6 rounded-full transition ${campaign.active ? 'bg-blue-600' : 'bg-gray-300'
+                                } relative`}
                             >
                               <span
-                                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition ${
-                                  campaign.active ? 'right-1' : 'left-1'
-                                }`}
+                                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition ${campaign.active ? 'right-1' : 'left-1'
+                                  }`}
                               />
                             </button>
                           </td>
                         )}
                         <td className="px-4 py-3">
-                          <div className="text-blue-600 hover:underline cursor-pointer font-medium">
+                          <Link
+                            href={
+                              userRole === 'admin'
+                                ? `/dashboard/campaign/${campaign._id}/content`
+                                : `/viewer/campaign/${campaign._id}`
+                            }
+                            className="text-blue-600 hover:underline font-medium"
+                          >
                             {campaign.name}
-                          </div>
+                          </Link>
                         </td>
                         {visibleColumns.delivery && (
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <span className={`w-2 h-2 rounded-full ${
-                                campaign.status === 'active' ? 'bg-green-500' : 
-                                campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'
-                              }`} />
+                              <span className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' :
+                                  campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'
+                                }`} />
                               <span className="text-sm text-gray-700">{campaign.delivery}</span>
                             </div>
                           </td>
@@ -363,31 +369,31 @@ export default function CampaignList({
                         {customFields.map((field) => (
                           visibleColumns[`custom_${field.name}`] !== false && (
                             <td key={field._id} className="px-4 py-3 text-sm text-gray-600">
-                              {campaign.customFields && campaign.customFields[field.name] 
-                                ? (typeof campaign.customFields[field.name] === 'boolean' 
-                                    ? (campaign.customFields[field.name] ? 'Yes' : 'No')
-                                    : campaign.customFields[field.name])
+                              {campaign.customFields && campaign.customFields[field.name]
+                                ? (typeof campaign.customFields[field.name] === 'boolean'
+                                  ? (campaign.customFields[field.name] ? 'Yes' : 'No')
+                                  : campaign.customFields[field.name])
                                 : '—'}
                             </td>
                           )
                         ))}
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
-                            <button 
+                            <button
                               onClick={() => onEdit(campaign)}
                               className="p-1 hover:bg-gray-200 rounded"
                               title="Edit"
                             >
                               <Edit size={16} className="text-gray-600" />
                             </button>
-                            <button 
+                            <button
                               onClick={() => onDuplicate(campaign._id)}
                               className="p-1 hover:bg-gray-200 rounded"
                               title="Duplicate"
                             >
                               <Copy size={16} className="text-gray-600" />
                             </button>
-                            <button 
+                            <button
                               onClick={() => onDelete(campaign._id)}
                               className="p-1 hover:bg-gray-200 rounded"
                               title="Delete"
@@ -402,7 +408,7 @@ export default function CampaignList({
                 </tbody>
               </table>
             </div>
-            
+
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
               Results from {campaigns.length} campaigns
             </div>
