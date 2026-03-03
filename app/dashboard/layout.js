@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const redirected = useRef(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [campaignMenuOpen, setCampaignMenuOpen] = useState(false);
   const [advertiseMenuOpen, setAdvertiseMenuOpen] = useState(false);
@@ -153,17 +153,17 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 flex flex-col">
         <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg text-black">
               <Menu size={20} />
             </button>
             <div className="relative">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 w-80 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-black" />
+              <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 w-80 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-black" />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg">
+            <button className="relative p-2 hover:bg-gray-100 rounded-lg text-black">
               <Bell size={20} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
             </button>
@@ -174,7 +174,7 @@ export default function DashboardLayout({ children }) {
                 <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                   <span className="text-white">{user?.name?.charAt(0)}</span>
                 </div>
-                <span className="text-sm font-medium">{user?.name}</span>
+                <span className="text-sm font-medium text-black">{user?.name}</span>
                 <ChevronDown size={16} />
               </button>
 

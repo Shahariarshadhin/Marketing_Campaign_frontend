@@ -60,7 +60,7 @@ export default function CreateCampaign({
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Enter campaign name"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -73,7 +73,7 @@ export default function CreateCampaign({
               name="objective"
               value={formData.objective}
               onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             >
               <option value="awareness">Awareness</option>
               <option value="traffic">Traffic</option>
@@ -94,7 +94,7 @@ export default function CreateCampaign({
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
                 <option value="draft">Draft</option>
                 <option value="active">Active</option>
@@ -138,7 +138,7 @@ export default function CreateCampaign({
               value={formData.delivery}
               onChange={handleInputChange}
               placeholder="e.g., In draft, Active, Scheduled"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -153,7 +153,7 @@ export default function CreateCampaign({
               value={formData.actions}
               onChange={handleInputChange}
               placeholder="Enter actions"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -168,7 +168,7 @@ export default function CreateCampaign({
               value={formData.results}
               onChange={handleInputChange}
               placeholder="e.g., Landing page view, Impressions"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -183,7 +183,7 @@ export default function CreateCampaign({
               value={formData.costPerResult}
               onChange={handleInputChange}
               placeholder="e.g., Per landing page view"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -224,7 +224,7 @@ export default function CreateCampaign({
                 value={formData.dailyBudget}
                 onChange={handleInputChange}
                 placeholder="Enter daily budget amount"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
             ) : (
               <input
@@ -233,7 +233,7 @@ export default function CreateCampaign({
                 value={formData.lifetimeBudget}
                 onChange={handleInputChange}
                 placeholder="Enter lifetime budget amount"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
             )}
           </div>
@@ -249,7 +249,7 @@ export default function CreateCampaign({
               value={formData.budget}
               onChange={handleInputChange}
               placeholder="e.g., $30.00, Using ad set budget"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -264,7 +264,7 @@ export default function CreateCampaign({
               value={formData.amountSpent}
               onChange={handleInputChange}
               placeholder="e.g., $0.00"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -279,7 +279,7 @@ export default function CreateCampaign({
               value={formData.impressions}
               onChange={handleInputChange}
               placeholder="e.g., —, 1000"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -294,7 +294,7 @@ export default function CreateCampaign({
               value={formData.reach}
               onChange={handleInputChange}
               placeholder="e.g., —, 500"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -307,7 +307,7 @@ export default function CreateCampaign({
               name="bidStrategy"
               value={formData.bidStrategy}
               onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             >
               <option value="lowest_cost">Lowest Cost</option>
               <option value="cost_cap">Cost Cap</option>
@@ -327,7 +327,7 @@ export default function CreateCampaign({
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
             </div>
 
@@ -340,7 +340,7 @@ export default function CreateCampaign({
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
             </div>
           </div>
@@ -356,7 +356,7 @@ export default function CreateCampaign({
               value={formData.targetAudience}
               onChange={handleInputChange}
               placeholder="Enter target audience"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
 
@@ -369,7 +369,7 @@ export default function CreateCampaign({
               name="placement"
               value={formData.placement}
               onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             >
               <option value="automatic">Automatic Placements</option>
               <option value="manual">Manual Placements</option>
@@ -396,7 +396,7 @@ export default function CreateCampaign({
                         onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                         required={field.required}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     )}
                     
@@ -407,7 +407,7 @@ export default function CreateCampaign({
                         onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                         required={field.required}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     )}
                     
@@ -418,7 +418,7 @@ export default function CreateCampaign({
                         onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                         required={field.required}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     )}
                     
@@ -428,7 +428,7 @@ export default function CreateCampaign({
                         value={(formData.customFieldsData && formData.customFieldsData[field.name]) || ''}
                         onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
                         required={field.required}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     )}
                     
@@ -439,7 +439,7 @@ export default function CreateCampaign({
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
                         required={field.required}
                         rows={3}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       />
                     )}
                     
@@ -448,7 +448,7 @@ export default function CreateCampaign({
                         value={(formData.customFieldsData && formData.customFieldsData[field.name]) || ''}
                         onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
                         required={field.required}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                       >
                         <option value="">Select {field.label.toLowerCase()}</option>
                         {field.options && field.options.map((option, idx) => (

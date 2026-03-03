@@ -78,7 +78,7 @@ export default function ManageFields({
                   value={newField.name}
                   onChange={handleFieldChange}
                   placeholder="e.g., customer_id"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 />
                 <p className="text-xs text-gray-500 mt-1">Use lowercase with underscores (no spaces)</p>
               </div>
@@ -93,7 +93,7 @@ export default function ManageFields({
                   value={newField.label}
                   onChange={handleFieldChange}
                   placeholder="e.g., Customer ID"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -105,7 +105,7 @@ export default function ManageFields({
                   name="type"
                   value={newField.type}
                   onChange={handleFieldChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 >
                   <option value="text">Text</option>
                   <option value="number">Number</option>
@@ -129,7 +129,7 @@ export default function ManageFields({
                       ...prev,
                       options: e.target.value.split(',').map(opt => opt.trim())
                     }))}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   />
                 </div>
               )}
@@ -144,7 +144,7 @@ export default function ManageFields({
                   value={newField.placeholder}
                   onChange={handleFieldChange}
                   placeholder="Enter placeholder text"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export default function ManageFields({
                   onChange={handleFieldChange}
                   placeholder="Field description (optional)"
                   rows={2}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 />
               </div>
 

@@ -32,21 +32,21 @@ export default function CampaignList({
             <div className="flex gap-2">
               <button
                 onClick={() => setShowColumnManager(!showColumnManager)}
-                className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md  transition border border-blue-200"
               >
                 <Settings size={18} />
                 Columns
               </button>
               <button
                 onClick={onManageFieldsClick}
-                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
+                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md  transition border border-blue-200"
               >
                 <Plus size={18} />
                 Manage Fields
               </button>
               <button
                 onClick={onCreateClick}
-                className="flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
+                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md  transition border border-green-200"
               >
                 <Plus size={18} />
                 Create Campaign
