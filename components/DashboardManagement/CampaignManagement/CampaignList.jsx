@@ -267,13 +267,13 @@ export default function CampaignList({
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Cost per Result</th>
                     )}
                     {visibleColumns.budget && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Budget</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Budget</th>
                     )}
                     {visibleColumns.amountSpent && (
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Amount Spent</th>
                     )}
                     {visibleColumns.impressions && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Impressions</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Impressions</th>
                     )}
                     {visibleColumns.reach && (
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Reach</th>
@@ -283,7 +283,7 @@ export default function CampaignList({
                     )}
                     {customFields.map((field) => (
                       visibleColumns[`custom_${field.name}`] !== false && (
-                        <th key={field._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                        <th key={field._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">
                           {field.label}
                         </th>
                       )
@@ -352,13 +352,13 @@ export default function CampaignList({
                           <td className="px-4 py-3 text-sm text-gray-600">{campaign.costPerResult}</td>
                         )}
                         {visibleColumns.budget && (
-                          <td className="px-4 py-3 text-sm text-gray-700 font-medium">{campaign.budget}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700 font-medium border border-gray-200">{campaign.budget}</td>
                         )}
                         {visibleColumns.amountSpent && (
-                          <td className="px-4 py-3 text-sm text-gray-700 font-medium">{campaign.amountSpent}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700 font-medium ">{campaign.amountSpent}</td>
                         )}
                         {visibleColumns.impressions && (
-                          <td className="px-4 py-3 text-sm text-gray-600">{campaign.impressions}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 border border-gray-200">{campaign.impressions}</td>
                         )}
                         {visibleColumns.reach && (
                           <td className="px-4 py-3 text-sm text-gray-600">{campaign.reach}</td>
@@ -368,7 +368,7 @@ export default function CampaignList({
                         )}
                         {customFields.map((field) => (
                           visibleColumns[`custom_${field.name}`] !== false && (
-                            <td key={field._id} className="px-4 py-3 text-sm text-gray-600">
+                            <td key={field._id} className="px-4 py-3 text-sm text-gray-600 border border-gray-200">
                               {campaign.customFields && campaign.customFields[field.name]
                                 ? (typeof campaign.customFields[field.name] === 'boolean'
                                   ? (campaign.customFields[field.name] ? 'Yes' : 'No')

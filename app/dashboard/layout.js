@@ -48,8 +48,16 @@ export default function DashboardLayout({ children }) {
   }
 
   const navItems = [
-    { icon: Home, label: "Dashboard", link: "/dashboard" },
+    // { icon: Home, label: "Dashboard", link: "/dashboard" },
     { icon: BarChart3, label: "Campaign", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Audiences", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Creative", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Inventory", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Reports", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Experiments", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Resources", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "Advertiser Settings", link: "/dashboard/campaign" },
+    { icon: BarChart3, label: "History", link: "/dashboard/campaign" },
     // {
     //   icon: BarChart3, label: "Campaign", hasSubmenu: true,
     //   submenu: [
@@ -77,10 +85,10 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-slate-900 text-white transition-all duration-300 flex flex-col`}>
-        <Link href="/" className="p-4 border-b border-slate-800">
+      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-slate-100 text-white transition-all duration-300 flex flex-col`}>
+        <Link href="/" className="p-4">
           <div className="flex items-center gap-3">
-            {sidebarOpen && <span className="font-semibold text-lg">Campaign Dashboard</span>}
+            {sidebarOpen && <span className="font-semibold text-lg text-black">Campaign Dashboard</span>}
           </div>
         </Link>
 
@@ -115,8 +123,8 @@ export default function DashboardLayout({ children }) {
                       <div className="mt-2 ml-4 space-y-1">
                         {item.submenu.map((sub) => (
                           <Link href={sub.link} key={sub.label}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-slate-800">
-                            <sub.icon size={16} className="text-gray-400" />
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-black hover:bg-slate-800">
+                            <sub.icon size={16} className="text-black" />
                             {sub.label}
                           </Link>
                         ))}
@@ -125,7 +133,7 @@ export default function DashboardLayout({ children }) {
                   </>
                 ) : (
                   <Link href={item.link}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-800">
+                    className="flex items-center gap-3 px-4 py-3 rounded-tr-full font-semibold rounded-br-full text-black hover:text-white hover:bg-[#1B74EA]">
                     <item.icon size={20} />
                     {sidebarOpen && <span>{item.label}</span>}
                   </Link>
