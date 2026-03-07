@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
   BarChart3, Bell, ChevronDown, FileText, Home, List, LogOut,
-  Megaphone, Menu, Package, PlusCircle, Search, Settings, Tag, User, Users,
+  Megaphone, Menu, Package, PlusCircle, Search, Settings, Tag, User, Users,Compass,Image,CalendarCheck2,SquareKanban,FlaskConical,History
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -49,15 +49,15 @@ export default function DashboardLayout({ children }) {
 
   const navItems = [
     // { icon: Home, label: "Dashboard", link: "/dashboard" },
-    { icon: BarChart3, label: "Campaign", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Audiences", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Creative", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Inventory", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Reports", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Experiments", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Resources", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "Advertiser Settings", link: "/dashboard/campaign" },
-    { icon: BarChart3, label: "History", link: "/dashboard/campaign" },
+    { icon: Compass, label: "Campaign", link: "/dashboard/campaign" },
+    { icon: Users, label: "Audiences", link: "/dashboard/users" },
+    { icon: Image, label: "Creative", link: "/dashboard/campaign" },
+    { icon: CalendarCheck2, label: "Inventory", link: "/dashboard/campaign" },
+    { icon: SquareKanban, label: "Reports", link: "/dashboard/campaign" },
+    { icon: FlaskConical, label: "Experiments", link: "/dashboard/campaign" },
+    { icon: FileText, label: "Resources", link: "/dashboard/campaign" },
+    { icon: Settings, label: "Advertiser Settings", link: "/dashboard/campaign" },
+    { icon: History, label: "History", link: "/dashboard/campaign" },
     // {
     //   icon: BarChart3, label: "Campaign", hasSubmenu: true,
     //   submenu: [
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }) {
     //     { label: "Advertisement List", link: "/dashboard/advertise/advertise-list", icon: List },
     //   ],
     // },
-    { icon: Users, label: "Users", link: "/dashboard/users" },
+    // { icon: Users, label: "Users", link: "/dashboard/users" },
     // {
     //   icon: Package, label: "Product Config", hasSubmenu: true,
     //   submenu: [

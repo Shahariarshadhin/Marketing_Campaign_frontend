@@ -9,6 +9,7 @@ import {
   Calendar, RefreshCw, TrendingUp, Zap, PauseCircle,
   BarChart3, Target, ChevronRight, Sparkles, Activity
 } from 'lucide-react';
+import CampaignCharts from './Campaigncharts';
 
 const API_URL           = `${process.env.NEXT_PUBLIC_API_URL}/campaigns`;
 const CUSTOM_FIELDS_URL = `${process.env.NEXT_PUBLIC_API_URL}/custom-fields`;
@@ -492,6 +493,13 @@ export default function CampaignManager() {
         campaigns={campaigns}
         filtered={filteredCampaigns}
         hasFilter={activePreset !== 'All'}
+      />
+
+       {/* Google Ads-style Charts */}
+       <CampaignCharts
+        campaigns={filteredCampaigns}
+        startDate={startDate}
+        endDate={endDate}
       />
 
       {/* Date Range Filter */}
