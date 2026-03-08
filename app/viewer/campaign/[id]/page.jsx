@@ -229,7 +229,8 @@ import {
   TrendingUp, DollarSign, Eye, Users
 } from "lucide-react";
 import Link from "next/link";
-import DateRangePicker from "@/components/DashboardManagement/DateRangePicker";
+import DateRangePicker from "@/components/DashboardManagement/CampaignManagement/DateRangePicker";
+
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
