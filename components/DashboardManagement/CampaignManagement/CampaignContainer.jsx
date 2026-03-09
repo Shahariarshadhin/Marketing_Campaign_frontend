@@ -9,7 +9,7 @@ import {
   Calendar, RefreshCw, TrendingUp, Zap, PauseCircle,
   BarChart3, Target, ChevronRight, Sparkles, Activity
 } from 'lucide-react';
-import CampaignCharts from './Campaigncharts';
+import CampaignCharts from '@/components/DashboardManagement/CampaignManagement/Campaigncharts';
 
 const API_URL           = `${process.env.NEXT_PUBLIC_API_URL}/campaigns`;
 const CUSTOM_FIELDS_URL = `${process.env.NEXT_PUBLIC_API_URL}/custom-fields`;
@@ -71,7 +71,7 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
       {/* Stat cards row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Total */}
-        <div className="relative overflow-hidden bg-white rounded-2xl p-4 text-black shadow-lg">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 text-white shadow-lg">
           <div className="absolute -right-3 -top-3 w-16 h-16 bg-white/5 rounded-full" />
           <div className="absolute -right-1 -bottom-4 w-10 h-10 bg-white/5 rounded-full" />
           <div className="flex items-start justify-between">
@@ -87,15 +87,15 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
         </div>
 
         {/* Active */}
-          <div className="relative overflow-hidden bg-white rounded-2xl p-4 text-black shadow-lg">
+        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white shadow-lg shadow-emerald-500/20">
           <div className="absolute -right-3 -top-3 w-16 h-16 bg-white/10 rounded-full" />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-black text-xs font-medium uppercase tracking-widest mb-1">Active</p>
+              <p className="text-emerald-100 text-xs font-medium uppercase tracking-widest mb-1">Active</p>
               <p className="text-3xl font-black tabular-nums">
                 <AnimatedNumber value={hasFilter ? filteredActive : active} />
               </p>
-              <p className="text-black text-xs mt-1">{activePercent}% of campaigns</p>
+              <p className="text-emerald-200 text-xs mt-1">{activePercent}% of campaigns</p>
             </div>
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <Zap size={18} className="text-white" />
@@ -109,15 +109,15 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
         </div>
 
         {/* Inactive */}
-        <div className="relative overflow-hidden bg-white rounded-2xl p-4 text-black shadow-lg">
+        <div className="relative overflow-hidden bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 text-white shadow-lg shadow-rose-500/20">
           <div className="absolute -right-3 -top-3 w-16 h-16 bg-white/10 rounded-full" />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-black text-xs font-medium uppercase tracking-widest mb-1">Inactive</p>
+              <p className="text-rose-100 text-xs font-medium uppercase tracking-widest mb-1">Inactive</p>
               <p className="text-3xl font-black tabular-nums">
                 <AnimatedNumber value={hasFilter ? filteredInactive : inactive} />
               </p>
-              <p className="text-black text-xs mt-1">{inactivePercent}% of campaigns</p>
+              <p className="text-rose-200 text-xs mt-1">{inactivePercent}% of campaigns</p>
             </div>
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <PauseCircle size={18} className="text-white" />
@@ -126,13 +126,13 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
         </div>
 
         {/* Draft / Scheduled */}
-        <div className="relative overflow-hidden bg-white rounded-2xl p-4 text-black shadow-lg">
+        <div className="relative overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-4 text-white shadow-lg shadow-amber-400/20">
           <div className="absolute -right-3 -top-3 w-16 h-16 bg-white/10 rounded-full" />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-black text-xs font-medium uppercase tracking-widest mb-1">Draft</p>
+              <p className="text-amber-100 text-xs font-medium uppercase tracking-widest mb-1">Draft</p>
               <p className="text-3xl font-black tabular-nums"><AnimatedNumber value={draft} /></p>
-              <p className="text-black text-xs mt-1">{scheduled} scheduled</p>
+              <p className="text-amber-200 text-xs mt-1">{scheduled} scheduled</p>
             </div>
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <Target size={18} className="text-white" />
@@ -142,17 +142,17 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
       </div>
 
       {/* Status bar */}
-      {/* {total > 0 && (
+      {total > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Activity size={14} className="text-gray-500" />
               <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Campaign Status Distribution</span>
             </div>
-            <span className="text-xs text-black">{total} total</span>
+            <span className="text-xs text-gray-400">{total} total</span>
           </div>
 
-          
+          {/* Progress bar */}
           <div className="flex h-3 rounded-full overflow-hidden gap-0.5 mb-3">
             {activePercent > 0 && (
               <div
@@ -176,7 +176,7 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
             )}
           </div>
 
-     
+          {/* Legend */}
           <div className="flex items-center gap-5 flex-wrap">
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500" />
@@ -198,7 +198,7 @@ function CampaignStats({ campaigns, filtered, hasFilter }) {
             )}
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
@@ -210,15 +210,15 @@ function DateRangeFilter({ startDate, endDate, activePreset, onStartChange, onEn
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm mb-4 overflow-hidden">
       {/* Header stripe */}
-      {/* <div className="bg-white px-5 py-2.5 flex items-center gap-2">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 flex items-center gap-2">
         <Calendar size={14} className="text-blue-200" />
-        <span className="text-xs font-semibold  text-black uppercase tracking-widest">Date Range Filter</span>
+        <span className="text-xs font-semibold text-white uppercase tracking-widest">Date Range Filter</span>
         {hasFilter && (
-          <span className="ml-auto bg-white/20  text-black text-xs px-2.5 py-0.5 rounded-full font-medium">
+          <span className="ml-auto bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-medium">
             {resultCount} of {total} shown
           </span>
         )}
-      </div> */}
+      </div>
 
       <div className="px-5 py-4 flex flex-wrap items-end gap-4">
         {/* Preset chips */}
@@ -246,22 +246,22 @@ function DateRangeFilter({ startDate, endDate, activePreset, onStartChange, onEn
         {/* Custom date inputs */}
         <div className="flex items-end gap-3">
           <div>
-            <label className="block text-xs text-black mb-1.5 font-semibold uppercase tracking-wide">From</label>
+            <label className="block text-xs text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">From</label>
             <input
               type="date"
               value={startDate}
               onChange={e => onStartChange(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition"
             />
           </div>
           <div className="pb-2 text-gray-300 font-light text-lg">→</div>
           <div>
-            <label className="block text-xs text-black mb-1.5 font-semibold uppercase tracking-wide">To</label>
+            <label className="block text-xs text-gray-400 mb-1.5 font-semibold uppercase tracking-wide">To</label>
             <input
               type="date"
               value={endDate}
               onChange={e => onEndChange(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition"
             />
           </div>
         </div>
@@ -291,6 +291,7 @@ export default function CampaignManager() {
   const [error, setError]                       = useState(null);
   const [editingCampaign, setEditingCampaign]   = useState(null);
   const [customFields, setCustomFields]         = useState([]);
+  const [availableBrands, setAvailableBrands]   = useState([]);
   const [showColumnManager, setShowColumnManager] = useState(false);
 
   const [startDate, setStartDate]       = useState('');
@@ -304,14 +305,14 @@ export default function CampaignManager() {
   });
 
   const [formData, setFormData] = useState({
-    name: '', objective: 'awareness', status: 'draft', delivery: 'In draft',
+    motherBrand: '', name: '', objective: 'awareness', status: 'draft', delivery: 'In draft',
     actions: '', results: '', costPerResult: '', bidStrategy: 'lowest_cost',
     budgetType: 'daily', dailyBudget: '', lifetimeBudget: '', budget: '',
     amountSpent: '', impressions: '', reach: '', startDate: '', endDate: '',
     targetAudience: '', placement: 'automatic', active: false, customFieldsData: {}
   });
 
-  useEffect(() => { fetchCampaigns(); fetchCustomFields(); }, []);
+  useEffect(() => { fetchCampaigns(); fetchCustomFields(); fetchBrands(); }, []);
 
   useEffect(() => {
     if (customFields.length > 0) {
@@ -371,6 +372,14 @@ export default function CampaignManager() {
     } catch {}
   };
 
+  const fetchBrands = async () => {
+    try {
+      const res  = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/mother-brands`);
+      const data = await res.json();
+      if (data.success) setAvailableBrands(data.data);
+    } catch {}
+  };
+
   const toggleCampaign = async (id) => {
     try {
       const res  = await authFetch(`${API_URL}/${id}/toggle`, { method: 'PATCH' });
@@ -399,6 +408,7 @@ export default function CampaignManager() {
   const editCampaign = (campaign) => {
     setEditingCampaign(campaign);
     setFormData({
+      motherBrand: campaign.motherBrand?._id || campaign.motherBrand || '',
       name: campaign.name, objective: campaign.objective, status: campaign.status,
       delivery: campaign.delivery, actions: campaign.actions, results: campaign.results,
       costPerResult: campaign.costPerResult, bidStrategy: campaign.bidStrategy,
@@ -421,6 +431,7 @@ export default function CampaignManager() {
         ? `$${formData.dailyBudget}/day`
         : `$${formData.lifetimeBudget} lifetime`;
       const campaignData = {
+        motherBrand: formData.motherBrand,
         name: formData.name, status: formData.status,
         delivery: formData.delivery || (formData.status === 'active' ? 'Active' : formData.status === 'draft' ? 'In draft' : 'Scheduled'),
         actions: formData.actions || '', results: formData.results || '—',
@@ -449,7 +460,7 @@ export default function CampaignManager() {
   const resetForm = () => {
     setEditingCampaign(null);
     setFormData({
-      name: '', objective: 'awareness', status: 'draft', delivery: 'In draft', actions: '',
+      motherBrand: '', name: '', objective: 'awareness', status: 'draft', delivery: 'In draft', actions: '',
       results: '', costPerResult: '', bidStrategy: 'lowest_cost', budgetType: 'daily',
       dailyBudget: '', lifetimeBudget: '', budget: '', amountSpent: '', impressions: '',
       reach: '', startDate: '', endDate: '', targetAudience: '', placement: 'automatic',
@@ -479,7 +490,8 @@ export default function CampaignManager() {
 
   if (currentView === 'create') {
     return <CreateCampaign formData={formData} setFormData={setFormData} customFields={customFields}
-      editingCampaign={editingCampaign} onSubmit={handleSubmit} onCancel={handleCancel} loading={loading} />;
+      editingCampaign={editingCampaign} onSubmit={handleSubmit} onCancel={handleCancel} loading={loading}
+      availableBrands={availableBrands} />;
   }
   if (currentView === 'manage-fields') {
     return <ManageFields customFields={customFields} onAddField={addCustomField}
@@ -495,8 +507,8 @@ export default function CampaignManager() {
         hasFilter={activePreset !== 'All'}
       />
 
-       {/* Google Ads-style Charts */}
-       <CampaignCharts
+      {/* Google Ads-style Charts */}
+      <CampaignCharts
         campaigns={filteredCampaigns}
         startDate={startDate}
         endDate={endDate}
