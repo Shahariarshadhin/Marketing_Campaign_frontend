@@ -324,7 +324,7 @@ export default function CampaignList({
                           <Link
                             href={
                               userRole === 'admin'
-                                ? `/dashboard/campaign/${campaign._id}/content`
+                                ? `/dashboard/campaign/${campaign._id}/insertion-orders`
                                 : `/viewer/campaign/${campaign._id}`
                             }
                             className="text-blue-600 hover:underline font-medium"
@@ -336,7 +336,7 @@ export default function CampaignList({
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <span className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' :
-                                  campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'
+                                campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'
                                 }`} />
                               <span className="text-sm text-gray-700">{campaign.delivery}</span>
                             </div>

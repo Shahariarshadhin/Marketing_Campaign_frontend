@@ -301,12 +301,12 @@ export default function BrandDetailPage() {
       )}
 
       {/* ── Brand Hero Header ─────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-white border-b border-gray-100 px-6 py-8 mb-2">
+      {/* <div className="relative overflow-hidden bg-white border-b border-gray-100 px-6 py-8 mb-2">
         <div className="absolute inset-0 opacity-5"
           style={{ background: `radial-gradient(circle at 70% 50%, ${brand.color}, transparent 70%)` }} />
         <div className="max-w-full mx-auto">
 
-          {/* Breadcrumb */}
+           
           <div className="flex items-center gap-2 mb-5 text-sm">
             <Link href="/dashboard/brands"
               className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 transition">
@@ -317,7 +317,7 @@ export default function BrandDetailPage() {
           </div>
 
           <div className="flex items-center justify-between flex-wrap gap-4">
-            {/* Brand identity */}
+           
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center text-white text-2xl font-black overflow-hidden flex-shrink-0"
                 style={{ background: brand.logo ? 'transparent' : `linear-gradient(135deg, ${brand.color}, ${brand.color}99)` }}>
@@ -329,7 +329,7 @@ export default function BrandDetailPage() {
               </div>
             </div>
 
-            {/* New campaign button */}
+            
             {isAdmin && (
               <button onClick={openCreate}
                 className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-md transition hover:opacity-90"
@@ -339,7 +339,7 @@ export default function BrandDetailPage() {
             )}
           </div>
 
-          {/* Stat pills */}
+          
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
             {[
               { label: 'Total',    value: filteredCampaigns.length,                                           icon: <BarChart3 size={13} />, bg: 'bg-gray-50',    text: 'text-gray-700' },
@@ -357,7 +357,7 @@ export default function BrandDetailPage() {
             ))}
           </div>
 
-          {/* Status bar */}
+       
           {filteredCampaigns.length > 0 && (
             <div className="mt-4">
               <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100 gap-0.5">
@@ -375,7 +375,7 @@ export default function BrandDetailPage() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* ── Date Range Filter ─────────────────────────────────────────────── */}
       <div className="px-6 mb-2">
