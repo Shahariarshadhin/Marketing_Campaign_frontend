@@ -9,9 +9,15 @@ import {
   Target, Calendar, RefreshCw, Loader2, Activity,
 } from "lucide-react";
 import CampaignList from "@/components/DashboardManagement/CampaignManagement/CampaignList";
+import ManageFields from "@/components/DashboardManagement/CampaignManagement/ManageCustomFields";
+import DailyEntryPanel from "@/components/DashboardManagement/CampaignManagement/DailyEntryPanel";
 import CreateCampaign from "@/components/DashboardManagement/CampaignManagement/CreateCampaign";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+const CF_URL = `${API}/custom-fields`;
+
+function todayISO() { return new Date().toISOString().split("T")[0]; }
+function offsetISO(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split("T")[0]; }
 
 const PRESETS = [
   { label: 'All' },
@@ -57,6 +63,7 @@ export default function BrandDetailPage() {
   // CreateCampaign (edit) mode inside this page
   const [editingCampaign, setEditingCampaign] = useState(null);
   const [showCreate, setShowCreate]           = useState(false);
+  const [showManageFields, setShowManageFields] = useState(false);
   const [savingCampaign, setSavingCampaign]   = useState(false);
   const [formData, setFormData] = useState({
     motherBrand: brandId,
@@ -76,6 +83,13 @@ export default function BrandDetailPage() {
     impressions: true, reach: true, ends: true, actionButtons: true
   });
   const [showColumnManager, setShowColumnManager] = useState(false);
+
+  // Daily data overlay — default to today
+  const [tableDate, setTableDate]         = useState(() => todayISO());
+  const [tableEndDate, setTableEndDate]   = useState(() => todayISO());
+  const [dailyDataMap, setDailyDataMap]   = useState({});
+  const [loadingDaily, setLoadingDaily]   = useState(false);
+  const [entryPanelCampaign, setEntryPanelCampaign] = useState(null);
 
   useEffect(() => {
     if (loading || redirected.current) return;
@@ -112,8 +126,47 @@ export default function BrandDetailPage() {
     }
   }, [customFields]);
 
+  const fetchDailyData = async (start, end, campList) => {
+    if (!start || !campList.length) { setDailyDataMap({}); return; }
+    setLoadingDaily(true);
+    const ids = campList.map(c => c._id);
+    try {
+      const isSingleDay = !end || start === end;
+      const url     = isSingleDay
+        ? `${API}/metrics/bulk-by-date`
+        : `${API}/metrics/bulk-by-range`;
+      const payload = isSingleDay
+        ? { campaignIds: ids, date: start }
+        : { campaignIds: ids, startDate: start, endDate: end };
+      const res  = await authFetch(url, { method: "POST", body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success) setDailyDataMap(data.data);
+      else setDailyDataMap({});
+    } catch { setDailyDataMap({}); }
+    finally { setLoadingDaily(false); }
+  };
+
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type }); setTimeout(() => setToast(null), 3000);
+  };
+
+  const addCustomField = async (fieldData) => {
+    try {
+      const res  = await authFetch(CF_URL, { method: 'POST', body: JSON.stringify(fieldData) });
+      const data = await res.json();
+      if (data.success) {
+        setCF(prev => [...prev, data.data]);
+        setVisibleColumns(prev => ({ ...prev, [`custom_${data.data.name}`]: true }));
+      }
+    } catch { showToast('Failed to add custom field', 'error'); }
+  };
+
+  const deleteCustomField = async (id) => {
+    if (!confirm('Delete this custom field?')) return;
+    try {
+      const res = await authFetch(`${CF_URL}/${id}`, { method: 'DELETE' });
+      if (res.ok) setCF(prev => prev.filter(f => f._id !== id));
+    } catch { showToast('Failed to delete custom field', 'error'); }
   };
 
   // Date filter
@@ -131,6 +184,13 @@ export default function BrandDetailPage() {
       return true;
     });
   }, [campaigns, startDate, endDate]);
+
+  // Re-fetch daily data when dates or campaign list changes (must be after filteredCampaigns)
+  useEffect(() => {
+    if (!user || !campaigns.length) return;
+    fetchDailyData(tableDate || todayISO(), tableEndDate || tableDate || todayISO(), filteredCampaigns);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableDate, tableEndDate, filteredCampaigns.length, campaigns.length]);
 
   const handlePreset = (p) => {
     setActivePreset(p.label);
@@ -306,7 +366,7 @@ export default function BrandDetailPage() {
           style={{ background: `radial-gradient(circle at 70% 50%, ${brand.color}, transparent 70%)` }} />
         <div className="max-w-full mx-auto">
 
-           
+          
           <div className="flex items-center gap-2 mb-5 text-sm">
             <Link href="/dashboard/brands"
               className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 transition">
@@ -317,7 +377,7 @@ export default function BrandDetailPage() {
           </div>
 
           <div className="flex items-center justify-between flex-wrap gap-4">
-           
+            
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center text-white text-2xl font-black overflow-hidden flex-shrink-0"
                 style={{ background: brand.logo ? 'transparent' : `linear-gradient(135deg, ${brand.color}, ${brand.color}99)` }}>
@@ -329,7 +389,7 @@ export default function BrandDetailPage() {
               </div>
             </div>
 
-            
+           
             {isAdmin && (
               <button onClick={openCreate}
                 className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-md transition hover:opacity-90"
@@ -357,7 +417,7 @@ export default function BrandDetailPage() {
             ))}
           </div>
 
-       
+         
           {filteredCampaigns.length > 0 && (
             <div className="mt-4">
               <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100 gap-0.5">
@@ -378,7 +438,7 @@ export default function BrandDetailPage() {
       </div> */}
 
       {/* ── Date Range Filter ─────────────────────────────────────────────── */}
-      <div className="px-6 mb-2">
+      {/* <div className="px-6 mb-2">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-5 py-2.5 border-b border-gray-50 flex items-center gap-2"
             style={{ background: `linear-gradient(90deg, ${brand.color}15, transparent)` }}>
@@ -425,9 +485,36 @@ export default function BrandDetailPage() {
             )}
           </div>
         </div>
-      </div>
+      </div> */}
 
-      {/* ── Campaign List — exact same component as the main dashboard ─────── */}
+      {/* ── Manage Custom Fields modal ────────────────────────────────────── */}
+      {showManageFields && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <ManageFields
+              customFields={customFields}
+              onAddField={addCustomField}
+              onDeleteField={deleteCustomField}
+              onBack={() => setShowManageFields(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Daily Entry Panel ────────────────────────────────────────────── */}
+      {entryPanelCampaign && (
+        <DailyEntryPanel
+          campaign={entryPanelCampaign}
+          customFields={customFields}
+          onClose={() => setEntryPanelCampaign(null)}
+          onSaved={(campaignId, date, record) => {
+            const effectiveEnd = tableEndDate || tableDate || todayISO();
+            fetchDailyData(tableDate || todayISO(), effectiveEnd, filteredCampaigns);
+          }}
+        />
+      )}
+
+      {/* ── Campaign List — same component as the main dashboard ─────── */}
       <div className="px-6 pb-10">
         <CampaignList
           campaigns={filteredCampaigns}
@@ -441,12 +528,19 @@ export default function BrandDetailPage() {
           showAllColumns={showAllColumns}
           hideAllColumns={hideAllColumns}
           onCreateClick={openCreate}
-          onManageFieldsClick={() => router.push('/dashboard/manage-fields')}
+          onManageFieldsClick={() => setShowManageFields(true)}
           onEdit={openEdit}
           onToggle={toggleCampaign}
           onDuplicate={duplicateCampaign}
           onDelete={deleteCampaign}
           userRole={user?.role}
+          tableDate={tableDate}
+          onTableDateChange={setTableDate}
+          tableEndDate={tableEndDate}
+          onTableEndDateChange={setTableEndDate}
+          dailyDataMap={dailyDataMap}
+          loadingDaily={loadingDaily}
+          onOpenDailyEntry={setEntryPanelCampaign}
         />
       </div>
     </div>

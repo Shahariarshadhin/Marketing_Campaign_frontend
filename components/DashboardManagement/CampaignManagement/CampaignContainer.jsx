@@ -9,9 +9,13 @@ import {
   Calendar, RefreshCw, TrendingUp, Zap, PauseCircle,
   BarChart3, Target, ChevronRight, Sparkles, Activity
 } from 'lucide-react';
-import CampaignCharts from '@/components/DashboardManagement/CampaignManagement/Campaigncharts';
+import CampaignCharts from './Campaigncharts';
+import DailyEntryPanel from './DailyEntryPanel';
+
 
 const API_URL           = `${process.env.NEXT_PUBLIC_API_URL}/campaigns`;
+
+function todayISO() { return new Date().toISOString().split('T')[0]; }
 const CUSTOM_FIELDS_URL = `${process.env.NEXT_PUBLIC_API_URL}/custom-fields`;
 
 const PRESETS = [
@@ -210,7 +214,7 @@ function DateRangeFilter({ startDate, endDate, activePreset, onStartChange, onEn
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm mb-4 overflow-hidden">
       {/* Header stripe */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 flex items-center gap-2">
+      {/* <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 flex items-center gap-2">
         <Calendar size={14} className="text-blue-200" />
         <span className="text-xs font-semibold text-white uppercase tracking-widest">Date Range Filter</span>
         {hasFilter && (
@@ -218,7 +222,7 @@ function DateRangeFilter({ startDate, endDate, activePreset, onStartChange, onEn
             {resultCount} of {total} shown
           </span>
         )}
-      </div>
+      </div> */}
 
       <div className="px-5 py-4 flex flex-wrap items-end gap-4">
         {/* Preset chips */}
@@ -298,6 +302,15 @@ export default function CampaignManager() {
   const [endDate, setEndDate]           = useState('');
   const [activePreset, setActivePreset] = useState('All');
 
+  // Daily entry panel
+  const [entryPanelCampaign, setEntryPanelCampaign] = useState(null);
+  // Date filter for daily data overlay in table
+  // Default: today. Range: tableDate → tableEndDate
+  const [tableDate, setTableDate]           = useState(() => todayISO());
+  const [tableEndDate, setTableEndDate]     = useState(() => todayISO());
+  const [dailyDataMap, setDailyDataMap]     = useState({});
+  const [loadingDaily, setLoadingDaily]     = useState(false);
+
   const [visibleColumns, setVisibleColumns] = useState({
     checkbox: true, toggle: true, campaign: true, delivery: true, actions: true,
     results: true, costPerResult: true, budget: true, amountSpent: true,
@@ -370,6 +383,29 @@ export default function CampaignManager() {
       const data = await res.json();
       if (data.success) setCustomFields(data.data);
     } catch {}
+  };
+
+  const fetchDailyData = async (start, end, campaignList) => {
+    if (!start || !campaignList.length) { setDailyDataMap({}); return; }
+    setLoadingDaily(true);
+    const ids = campaignList.map(c => c._id);
+    const MURL = process.env.NEXT_PUBLIC_API_URL;
+    try {
+      // Single day → use bulk-by-date; multi-day range → use bulk-by-range (aggregated sum)
+      const isSingleDay = !end || start === end;
+      const url     = isSingleDay
+        ? `${MURL}/metrics/bulk-by-date`
+        : `${MURL}/metrics/bulk-by-range`;
+      const payload = isSingleDay
+        ? { campaignIds: ids, date: start }
+        : { campaignIds: ids, startDate: start, endDate: end };
+
+      const res  = await authFetch(url, { method: 'POST', body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (data.success) setDailyDataMap(data.data);
+      else setDailyDataMap({});
+    } catch { setDailyDataMap({}); }
+    finally { setLoadingDaily(false); }
   };
 
   const fetchBrands = async () => {
@@ -484,6 +520,14 @@ export default function CampaignManager() {
     } catch { alert('Failed to delete custom field'); }
   };
 
+  // Auto-load today's data on mount; re-fetch when tableDate/tableEndDate/campaigns change
+  useEffect(() => {
+    const effectiveStart = tableDate || todayISO();
+    const effectiveEnd   = tableEndDate || tableDate || todayISO();
+    fetchDailyData(effectiveStart, effectiveEnd, filteredCampaigns);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableDate, tableEndDate, filteredCampaigns.length]);
+
   const toggleColumn   = (key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
   const showAllColumns = () => { const a = {}; Object.keys(visibleColumns).forEach(k => a[k] = true); setVisibleColumns(a); };
   const hideAllColumns = () => { const h = {}; Object.keys(visibleColumns).forEach(k => h[k] = k === 'campaign' || k === 'actionButtons'); setVisibleColumns(h); };
@@ -527,6 +571,19 @@ export default function CampaignManager() {
         total={campaigns.length}
       />
 
+      {/* Daily Entry Panel */}
+      {entryPanelCampaign && (
+        <DailyEntryPanel
+          campaign={entryPanelCampaign}
+          customFields={customFields}
+          onClose={() => setEntryPanelCampaign(null)}
+          onSaved={(campaignId, date, record) => {
+            // If user is viewing that date, refresh data
+            if (tableDate === date) fetchDailyData(date, filteredCampaigns);
+          }}
+        />
+      )}
+
       {/* Campaign List */}
       <CampaignList
         campaigns={filteredCampaigns}
@@ -546,6 +603,13 @@ export default function CampaignManager() {
         onDuplicate={duplicateCampaign}
         onDelete={deleteCampaign}
         userRole={user?.role}
+        tableDate={tableDate}
+        onTableDateChange={setTableDate}
+        dailyDataMap={dailyDataMap}
+        loadingDaily={loadingDaily}
+        onOpenDailyEntry={setEntryPanelCampaign}
+        tableEndDate={tableEndDate}
+        onTableEndDateChange={setTableEndDate}
       />
     </div>
   );

@@ -4,11 +4,32 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
-  BarChart3, Bell, ChevronDown, FileText, Home, List, LogOut,
-  Megaphone, Menu, Package, PlusCircle, Search, Settings, Tag, User, Users,Compass,Image,CalendarCheck2,SquareKanban,FlaskConical,History
+  BarChart3,
+  Bell,
+  ChevronDown,
+  FileText,
+  Home,
+  List,
+  LogOut,
+  Megaphone,
+  Menu,
+  Package,
+  PlusCircle,
+  Search,
+  Settings,
+  Tag,
+  User,
+  Users,
+  Compass,
+  // Image,
+  CalendarCheck2,
+  SquareKanban,
+  FlaskConical,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function DashboardLayout({ children }) {
   const { user, loading, logout } = useAuth();
@@ -56,7 +77,11 @@ export default function DashboardLayout({ children }) {
     { icon: SquareKanban, label: "Reports", link: "/dashboard/campaign" },
     { icon: FlaskConical, label: "Experiments", link: "/dashboard/campaign" },
     { icon: FileText, label: "Resources", link: "/dashboard/campaign" },
-    { icon: Settings, label: "Advertiser Settings", link: "/dashboard/campaign" },
+    {
+      icon: Settings,
+      label: "Advertiser Settings",
+      link: "/dashboard/campaign",
+    },
     { icon: History, label: "History", link: "/dashboard/campaign" },
     // {
     //   icon: BarChart3, label: "Campaign", hasSubmenu: true,
@@ -85,10 +110,18 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-slate-100 text-white transition-all duration-300 flex flex-col`}>
+      <aside
+        className={`${sidebarOpen ? "w-64" : "w-20"} bg-slate-100 text-white transition-all duration-300 flex flex-col`}
+      >
         <Link href="/" className="p-4">
           <div className="flex items-center gap-3">
-            {sidebarOpen && <span className="font-semibold text-lg text-black">Campaign Dashboard</span>}
+            <Image
+              src="/assets/logo/logo.svg"
+              alt="Campaign Dashboard"
+              width={32}
+              height={32}
+              className="w-full h-full"
+            />
           </div>
         </Link>
 
@@ -105,9 +138,12 @@ export default function DashboardLayout({ children }) {
                   <>
                     <button
                       onClick={() => {
-                        if (item.label === "Campaign") setCampaignMenuOpen(!campaignMenuOpen);
-                        if (item.label === "Advertisement") setAdvertiseMenuOpen(!advertiseMenuOpen);
-                        if (item.label === "Product Config") setProductConfigMenuOpen(!productConfigMenuOpen);
+                        if (item.label === "Campaign")
+                          setCampaignMenuOpen(!campaignMenuOpen);
+                        if (item.label === "Advertisement")
+                          setAdvertiseMenuOpen(!advertiseMenuOpen);
+                        if (item.label === "Product Config")
+                          setProductConfigMenuOpen(!productConfigMenuOpen);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-800"
                     >
@@ -115,15 +151,21 @@ export default function DashboardLayout({ children }) {
                       {sidebarOpen && (
                         <>
                           <span className="flex-1 text-left">{item.label}</span>
-                          <ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown
+                            size={16}
+                            className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          />
                         </>
                       )}
                     </button>
                     {isOpen && sidebarOpen && (
                       <div className="mt-2 ml-4 space-y-1">
                         {item.submenu.map((sub) => (
-                          <Link href={sub.link} key={sub.label}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-black hover:bg-slate-800">
+                          <Link
+                            href={sub.link}
+                            key={sub.label}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-black hover:bg-slate-800"
+                          >
                             <sub.icon size={16} className="text-black" />
                             {sub.label}
                           </Link>
@@ -132,8 +174,10 @@ export default function DashboardLayout({ children }) {
                     )}
                   </>
                 ) : (
-                  <Link href={item.link}
-                    className="flex items-center gap-3 px-4 py-3 rounded-tr-full font-semibold rounded-br-full text-black hover:text-white hover:bg-[#1B74EA]">
+                  <Link
+                    href={item.link}
+                    className="flex items-center gap-3 px-4 py-3 rounded-tr-full font-semibold rounded-br-full text-black hover:text-white hover:bg-[#1B74EA]"
+                  >
                     <item.icon size={20} />
                     {sidebarOpen && <span>{item.label}</span>}
                   </Link>
@@ -146,7 +190,9 @@ export default function DashboardLayout({ children }) {
         <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold">{user?.name?.charAt(0)}</span>
+              <span className="text-white font-semibold">
+                {user?.name?.charAt(0)}
+              </span>
             </div>
             {sidebarOpen && (
               <div>
@@ -161,12 +207,22 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 flex flex-col">
         <header className="bg-white border-b border-gray-200 h-20 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg text-black">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-100 rounded-lg text-black"
+            >
               <Menu size={20} />
             </button>
             <div className="relative">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-black" />
-              <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 w-80 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-black" />
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-black"
+              />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 w-80 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
+              />
             </div>
           </div>
 
@@ -177,25 +233,38 @@ export default function DashboardLayout({ children }) {
             </button>
 
             <div className="relative">
-              <button onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                   <span className="text-white">{user?.name?.charAt(0)}</span>
                 </div>
-                <span className="text-sm font-medium text-black">{user?.name}</span>
+                <span className="text-sm font-medium text-black">
+                  {user?.name}
+                </span>
                 <ChevronDown size={16} />
               </button>
 
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2 z-50">
-                  <Link href="/dashboard/profile" className="px-4 py-2 text-sm flex gap-2 hover:bg-gray-50">
+                  <Link
+                    href="/dashboard/profile"
+                    className="px-4 py-2 text-sm flex gap-2 hover:bg-gray-50"
+                  >
                     <User size={16} /> Profile
                   </Link>
-                  <Link href="/dashboard/settings" className="px-4 py-2 text-sm flex gap-2 hover:bg-gray-50">
+                  <Link
+                    href="/dashboard/settings"
+                    className="px-4 py-2 text-sm flex gap-2 hover:bg-gray-50"
+                  >
                     <Settings size={16} /> Settings
                   </Link>
                   <hr />
-                  <button onClick={logout} className="w-full px-4 py-2 text-left text-sm text-red-600 flex gap-2 hover:bg-gray-50">
+                  <button
+                    onClick={logout}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 flex gap-2 hover:bg-gray-50"
+                  >
                     <LogOut size={16} /> Logout
                   </button>
                 </div>
