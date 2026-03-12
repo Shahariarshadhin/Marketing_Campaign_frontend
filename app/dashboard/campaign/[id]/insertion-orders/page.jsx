@@ -484,9 +484,9 @@ export default function InsertionOrdersPage() {
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      {/* <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-30">
+      <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-30">
         <div className="max-w-full mx-auto">
-    
+          {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
             <Link href="/dashboard/brands" className="hover:text-gray-700 transition">Brands</Link>
             <ChevronRight size={12} />
@@ -516,9 +516,9 @@ export default function InsertionOrdersPage() {
               </div>
             </div>
 
-            
+            {/* Action bar — matches DV360 toolbar */}
             <div className="flex items-center gap-2">
-              
+              {/* Tab pills */}
               <div className="flex items-center bg-gray-100 rounded-xl p-1 text-xs font-semibold gap-1">
                 <Link href={`/dashboard/campaign/${campaignId}/content`}
                   className="px-3 py-1.5 text-gray-500 hover:text-gray-700 rounded-lg transition">
@@ -542,7 +542,7 @@ export default function InsertionOrdersPage() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
       <div className="max-w-full mx-auto px-6 py-5 space-y-5">
 
@@ -719,9 +719,11 @@ export default function InsertionOrdersPage() {
                         {/* Name */}
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-blue-600 hover:underline font-semibold cursor-pointer text-sm">
+                            <Link
+                              href={`/dashboard/campaign/${campaignId}/insertion-orders/${io._id}`}
+                              className="text-blue-600 hover:underline font-semibold cursor-pointer text-sm">
                               {io.name}
-                            </span>
+                            </Link>
                           </div>
                           <PacingBadge pacing={io.pacing} active={io.active} status={io.status} />
                         </td>
