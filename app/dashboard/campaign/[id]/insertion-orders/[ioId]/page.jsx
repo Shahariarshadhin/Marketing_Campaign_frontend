@@ -1132,7 +1132,7 @@ export default function IODetailPage() {
               <div className="fixed inset-0 z-30" onClick={() => setShowTargetingMenu(false)} />
 
               {/* Popup menu */}
-              <div className="absolute left-0 top-7 z-40 bg-white border border-gray-200 rounded-xl shadow-2xl w-72 py-2 overflow-hidden">
+              <div className="absolute left-0 bottom-7 z-40 bg-white border border-gray-200 rounded-xl shadow-2xl w-72 py-2 overflow-hidden">
 
                 <p className="px-4 pt-1 pb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">Content</p>
                 {CONTENT_ITEMS.map(item => (

@@ -1,5 +1,6 @@
 "use client";
-import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -13,9 +14,9 @@ function fmtShort(iso) {
 // Safely read a value from either a plain object or a Mongoose Map
 function getCF(obj, key) {
   if (!obj || !key) return null;
-  if (typeof obj.get === 'function') return obj.get(key) ?? null;      // Mongoose Map
+  if (typeof obj.get === 'function') return obj.get(key) ?? null;
   if (obj instanceof Map)           return obj.get(key) ?? null;
-  return obj[key] ?? null;                                              // plain object
+  return obj[key] ?? null;
 }
 
 // Format a custom field value for display
@@ -37,25 +38,20 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
     { label: '90 days',   start: offsetISO(89), end: today },
   ];
 
-  const isPreset = (p) => tableDate === p.start && tableEndDate === p.end;
+  const isPreset   = (p) => tableDate === p.start && tableEndDate === p.end;
   const isSingleDay = tableDate === tableEndDate;
   const hasEntries  = Object.keys(dailyDataMap || {}).length;
-
-  // range label
-  const rangeLabel = tableDate === tableEndDate
+  const rangeLabel  = tableDate === tableEndDate
     ? fmtShort(tableDate)
     : `${fmtShort(tableDate)} → ${fmtShort(tableEndDate)}`;
 
   return (
     <div className="bg-white border border-blue-100 rounded-xl mx-4 mt-3 mb-1 shadow-sm overflow-hidden">
-      {/* Top row */}
       <div className="flex items-center gap-3 px-4 py-2.5 flex-wrap border-b border-blue-50">
         <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
           <CalendarDays size={14} />
           Daily Data View
         </div>
-
-        {/* Preset buttons */}
         <div className="flex flex-wrap gap-1">
           {presets.map(p => (
             <button key={p.label}
@@ -68,39 +64,30 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
             </button>
           ))}
         </div>
-
-        {/* Loading */}
         {loadingDaily && (
           <div className="flex items-center gap-1.5 text-xs text-blue-500 ml-1">
             <Loader2 size={12} className="animate-spin" /> Loading…
           </div>
         )}
-
-        {/* Entry count badge */}
         {!loadingDaily && (
           <span className="ml-auto text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
             {hasEntries}/{campaigns.length} campaigns have data
           </span>
         )}
       </div>
-
-      {/* Bottom row — custom date range inputs */}
       <div className="flex items-center gap-3 px-4 py-2 flex-wrap">
         <span className="text-xs text-gray-500 font-medium">Custom range:</span>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-400">From</label>
-          <input type="date" value={tableDate}
-            onChange={e => onTableDateChange(e.target.value)}
+          <input type="date" value={tableDate} onChange={e => onTableDateChange(e.target.value)}
             className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </div>
         <span className="text-gray-300 text-sm">→</span>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-400">To</label>
-          <input type="date" value={tableEndDate} min={tableDate}
-            onChange={e => onTableEndDateChange(e.target.value)}
+          <input type="date" value={tableEndDate} min={tableDate} onChange={e => onTableEndDateChange(e.target.value)}
             className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </div>
-        {/* Active range badge */}
         <div className={`ml-2 flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full
           ${isSingleDay ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-violet-50 text-violet-700 border border-violet-200'}`}>
           <CalendarDays size={11} />
@@ -118,7 +105,6 @@ function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate }) 
   if (!rec) return <span className="text-gray-300 italic text-xs">—</span>;
   const val = rec[fieldKey];
   if (!val || val === '—') return <span className="text-gray-300 italic text-xs">—</span>;
-  // Format: if aggregated (sum across days), show with day count badge
   return (
     <span className="font-semibold text-blue-700">
       {val}
@@ -148,7 +134,6 @@ export default function CampaignList({
   onDuplicate,
   onDelete,
   userRole,
-  // Daily entry props
   tableDate,
   onTableDateChange,
   tableEndDate,
@@ -157,15 +142,30 @@ export default function CampaignList({
   loadingDaily,
   onOpenDailyEntry,
 }) {
+  // ★ Controls visibility of Enter Data + action buttons columns
+  const [showRowActions, setShowRowActions] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="w-full mx-auto">
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm mb-1 p-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-semibold text-gray-800">Campaigns</h1>
             <div className="flex gap-2">
+              {/* ★ Eye toggle button */}
+              <button
+                onClick={() => setShowRowActions(v => !v)}
+                title={showRowActions ? 'Hide actions' : 'Show actions'}
+                className={`flex items-center gap-2 px-4 py-2 shadow-lg rounded-md transition border text-sm font-medium
+                  ${showRowActions
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-600'}`}>
+                {showRowActions ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showRowActions ? 'Hide Actions' : 'Show Actions'}
+              </button>
+
               <button onClick={() => setShowColumnManager(!showColumnManager)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
                 <Settings size={18} /> Columns
@@ -240,7 +240,7 @@ export default function CampaignList({
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
         </div>
 
-        {/* ── Date range filter bar ────────────────────────────────────────── */}
+        {/* ── Date range filter bar ─────────────────────────────────────────── */}
         {onTableDateChange && (
           <TableDateBar
             tableDate={tableDate}
@@ -252,19 +252,6 @@ export default function CampaignList({
             campaigns={campaigns}
           />
         )}
-
-        {/* Daily mode banner */}
-        {/* {tableDate && !loadingDaily && (
-          <div className={`mx-4 mb-2 px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2
-            ${tableDate === tableEndDate ? 'bg-blue-600' : 'bg-violet-600'}`}>
-            <CalendarDays size={13} />
-            {tableDate === tableEndDate
-              ? <>Showing daily data for <strong className="ml-1">{fmtShort(tableDate)}</strong></>
-              : <>Showing <strong className="mx-1">sum</strong> of {fmtShort(tableDate)} → {fmtShort(tableEndDate)} · blue values = totals across {Math.round((new Date(tableEndDate) - new Date(tableDate)) / 86400000) + 1} days</>
-            }
-            &nbsp;— click <strong className="underline mx-1">Enter Data</strong> on any row to add entries
-          </div>
-        )} */}
 
         {loading && (
           <div className="text-center py-8">
@@ -297,15 +284,28 @@ export default function CampaignList({
                         <th key={f._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">{f.label}</th>
                       )
                     )}
-                    {/* Daily entry column header */}
-                    {userRole === 'admin' && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase bg-amber-50">
+
+                    {/* ★ Daily Entry + Actions column header — only when visible */}
+                    {showRowActions && userRole === 'admin' && (
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase bg-amber-50 whitespace-nowrap">
                         Daily Entry
                       </th>
                     )}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase" />
+                    {/* ★ Eye toggle in last header cell */}
+                    <th className="px-3 py-3 text-right">
+                      <button
+                        onClick={() => setShowRowActions(v => !v)}
+                        title={showRowActions ? 'Hide actions' : 'Show actions'}
+                        className={`p-1.5 rounded-lg border transition
+                          ${showRowActions
+                            ? 'bg-blue-50 border-blue-200 text-blue-600'
+                            : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300'}`}>
+                        {showRowActions ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-200">
                   {campaigns.length === 0 ? (
                     <tr>
@@ -319,6 +319,7 @@ export default function CampaignList({
                       return (
                         <tr key={campaign._id}
                           className={`hover:bg-gray-50 transition ${tableDate && !hasDaily ? 'opacity-75' : ''}`}>
+
                           {visibleColumns.checkbox && <td className="px-4 py-3"><input type="checkbox" className="rounded" /></td>}
                           {visibleColumns.toggle && (
                             <td className="px-4 py-3">
@@ -328,6 +329,7 @@ export default function CampaignList({
                               </button>
                             </td>
                           )}
+
                           {/* Campaign name */}
                           <td className="px-4 py-3">
                             <Link
@@ -345,7 +347,7 @@ export default function CampaignList({
                               </div>
                             )}
                           </td>
-                          {/* Data cells — show daily override when date is selected */}
+
                           {visibleColumns.delivery && (
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
@@ -394,12 +396,12 @@ export default function CampaignList({
                           {visibleColumns.ends && (
                             <td className="px-4 py-3 text-sm text-gray-600">{campaign.endDate}</td>
                           )}
+
                           {/* Custom fields */}
                           {customFields.map(field =>
                             visibleColumns[`custom_${field.name}`] !== false && (
                               <td key={field._id} className="px-4 py-3 text-sm text-gray-600 border border-gray-200">
                                 {(() => {
-                                  // Daily / range data takes priority
                                   if (tableDate && dailyDataMap?.[campaign._id]) {
                                     const rec = dailyDataMap[campaign._id];
                                     const v   = getCF(rec.customFields, field.name);
@@ -414,7 +416,6 @@ export default function CampaignList({
                                     );
                                     return <span className="text-gray-300 italic text-xs">—</span>;
                                   }
-                                  // Campaign default
                                   const v   = getCF(campaign.customFields, field.name)
                                            ?? getCF(campaign.customFieldsData, field.name);
                                   const str = fmtCFVal(v);
@@ -425,26 +426,46 @@ export default function CampaignList({
                               </td>
                             )
                           )}
-                          {/* ── Daily Entry button ── */}
-                          {userRole === 'admin' && (
-                            <td className="px-4 py-3 bg-amber-50/40">
+
+                          {/* ★ Daily Entry + Edit/Duplicate/Delete — hidden by default, shown when showRowActions */}
+                          {showRowActions ? (
+                            <>
+                              {userRole === 'admin' && (
+                                <td className="px-4 py-3 bg-amber-50/40">
+                                  <button
+                                    onClick={() => onOpenDailyEntry && onOpenDailyEntry(campaign)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition
+                                      bg-white border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-500 whitespace-nowrap">
+                                    <CalendarDays size={12} />
+                                    Enter Data
+                                  </button>
+                                </td>
+                              )}
+                              <td className="px-4 py-3">
+                                <div className="flex gap-2">
+                                  <button onClick={() => onEdit(campaign)} className="p-1 hover:bg-gray-200 rounded" title="Edit">
+                                    <Edit size={16} className="text-gray-600" />
+                                  </button>
+                                  <button onClick={() => onDuplicate(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Duplicate">
+                                    <Copy size={16} className="text-gray-600" />
+                                  </button>
+                                  <button onClick={() => onDelete(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Delete">
+                                    <Trash2 size={16} className="text-gray-600" />
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            /* ★ Collapsed state — just the eye button to expand */
+                            <td className="px-3 py-3 text-right">
                               <button
-                                onClick={() => onOpenDailyEntry && onOpenDailyEntry(campaign)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition
-                                  bg-white border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-500 whitespace-nowrap">
-                                <CalendarDays size={12} />
-                                Enter Data
+                                onClick={() => setShowRowActions(true)}
+                                title="Show actions"
+                                className="p-1.5 rounded-lg border bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300 transition">
+                                <Eye size={14} />
                               </button>
                             </td>
                           )}
-                          {/* Edit / Duplicate / Delete */}
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <button onClick={() => onEdit(campaign)} className="p-1 hover:bg-gray-200 rounded" title="Edit"><Edit size={16} className="text-gray-600" /></button>
-                              <button onClick={() => onDuplicate(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Duplicate"><Copy size={16} className="text-gray-600" /></button>
-                              <button onClick={() => onDelete(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Delete"><Trash2 size={16} className="text-gray-600" /></button>
-                            </div>
-                          </td>
                         </tr>
                       );
                     })
@@ -452,6 +473,7 @@ export default function CampaignList({
                 </tbody>
               </table>
             </div>
+
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600 flex items-center justify-between">
               <span>Results from {campaigns.length} campaigns</span>
               {tableDate && (
