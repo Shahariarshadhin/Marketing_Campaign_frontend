@@ -9,7 +9,6 @@ import {
   ChevronDown, Check, AlertCircle, Shield, Package, Filter,
   Search, Info
 } from "lucide-react";
-
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 // ─── Default exchange list — flat, no groups ──────────────────────────────────
@@ -76,14 +75,14 @@ function PublicInventoryPanel({ exchanges, targetNew, onClose, onApply }) {
         style={{ width: "min(600px, 100vw)" }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
           <h2 className="text-base font-bold text-gray-900">Inventory Source - Public Inventory</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition"><X size={18} className="text-gray-500" /></button>
         </div>
 
         {/* Info banner */}
-        <div className="flex items-start gap-2.5 bg-blue-50 border-b border-blue-100 px-5 py-3 flex-shrink-0">
-          <Info size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-2.5 bg-blue-50 border-b border-blue-100 px-5 py-3 shrink-0">
+          <Info size={14} className="text-blue-500 mt-0.5 shrink-0" />
           <p className="text-xs text-blue-700 leading-relaxed">
             App mediation partners give Display &amp; Video 360 advertisers more control and access to
             mobile app inventory. Impressions will not serve until add-on fee terms are reviewed and accepted.{" "}
@@ -92,7 +91,7 @@ function PublicInventoryPanel({ exchanges, targetNew, onClose, onApply }) {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-gray-200 bg-white flex-shrink-0">
+        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-gray-200 bg-white shrink-0">
           <button onClick={() => setActiveTab("all")}
             className={`px-4 py-1.5 rounded text-sm font-semibold transition ${activeTab === "all" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
             All
@@ -113,7 +112,7 @@ function PublicInventoryPanel({ exchanges, targetNew, onClose, onApply }) {
         </div>
 
         {/* Search + Add */}
-        <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50/50 flex-shrink-0">
+        <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50/50 shrink-0">
           <div className="flex-1 relative">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search exchanges..."
@@ -127,7 +126,7 @@ function PublicInventoryPanel({ exchanges, targetNew, onClose, onApply }) {
 
         {/* Add form */}
         {addingNew && (
-          <div className="px-5 py-3 bg-blue-50 border-b border-blue-100 flex items-center gap-2 flex-shrink-0">
+          <div className="px-5 py-3 bg-blue-50 border-b border-blue-100 flex items-center gap-2 shrink-0">
             <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addCustom(); }}
               placeholder="Exchange name" autoFocus
               className="flex-1 border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-black" />
@@ -185,9 +184,9 @@ function PublicInventoryPanel({ exchanges, targetNew, onClose, onApply }) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-t border-gray-200 bg-white flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-t border-gray-200 bg-white shrink-0">
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Settings size={13} className="text-gray-400 flex-shrink-0" />
+            <Settings size={13} className="text-gray-400 shrink-0" />
             New line items in this insertion order will inherit these settings.
           </div>
           <div className="flex items-center gap-2">
@@ -221,7 +220,7 @@ function SimpleListScreen({ listKey, title, namePlaceholder, urlPlaceholder, isU
   return (
     <>
       {/* Sub-header */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 flex-shrink-0">
+      <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 shrink-0">
         <button onClick={onBack} className="p-1 hover:bg-gray-100 rounded-lg transition text-gray-500">
           <ChevronLeft size={18} />
         </button>
@@ -259,7 +258,7 @@ function SimpleListScreen({ listKey, title, namePlaceholder, urlPlaceholder, isU
                   <p className="text-xs text-blue-500 truncate">{isUrlOnly ? item.value : item.url}</p>
                 </div>
                 <button onClick={() => onRemove(listKey, i)}
-                  className="ml-3 p-1 hover:bg-red-50 rounded text-gray-300 hover:text-red-400 transition flex-shrink-0">
+                  className="ml-3 p-1 hover:bg-red-50 rounded text-gray-300 hover:text-red-400 transition shrink-0">
                   <X size={14} />
                 </button>
               </div>
@@ -380,7 +379,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
         style={{ width: "min(680px, 100vw)" }}>
 
         {/* Top header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
           <h2 className="text-base font-bold text-gray-900">Apps &amp; URLs</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
             <X size={18} className="text-gray-500" />
@@ -390,7 +389,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
         {/* CATEGORIES screen */}
         {screen === 'categories' && (
           <>
-            <div className="px-5 py-3 border-b border-gray-100 flex-shrink-0">
+            <div className="px-5 py-3 border-b border-gray-100 shrink-0">
               <p className="text-sm text-gray-500">Choose a category:</p>
             </div>
             <div className="flex flex-1 overflow-hidden">
@@ -408,7 +407,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
                       <p className="text-sm font-medium text-gray-800">{cat.label}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{cat.desc}</p>
                     </div>
-                    <ChevronLeft size={15} className="rotate-180 text-gray-400 flex-shrink-0" />
+                    <ChevronLeft size={15} className="rotate-180 text-gray-400 shrink-0" />
                   </button>
                 ))}
                 <div className="px-5 py-3">
@@ -458,13 +457,13 @@ function AppsURLsPanel({ data, onClose, onApply }) {
         {/* APPS screen */}
         {screen === 'apps' && (
           <>
-            <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 flex-shrink-0">
+            <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 shrink-0">
               <button onClick={() => setScreen('categories')} className="p-1 hover:bg-gray-100 rounded-lg transition text-gray-500">
                 <ChevronLeft size={18} />
               </button>
               <p className="text-sm font-semibold text-gray-700">Apps</p>
             </div>
-            <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 shrink-0">
               <select value={platform} onChange={e => { setPlatform(e.target.value); setAppSearch(''); setAppResults([]); }}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <option>Android</option>
@@ -496,7 +495,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
                     <div key={app.packageId}
                       className={`flex items-center gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition ${isIncluded ? 'bg-blue-50/40' : ''} ${isExcluded ? 'bg-red-50/30' : ''}`}>
                       {/* App icon — real image or letter fallback */}
-                      <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
                         {app.icon ? (
                           <img src={app.icon} alt={app.name}
                             className="w-full h-full object-cover"
@@ -517,7 +516,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
                         <p className="text-xs text-gray-500 truncate">{app.publisher}</p>
                         <p className="text-xs text-gray-400 font-mono truncate">{app.platform} · {app.packageId}</p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <button onClick={() => toggleApp(app)} title="Include"
                           className={`p-1.5 rounded-full border-2 transition ${isIncluded ? 'border-blue-500 text-blue-500 bg-blue-50' : 'border-gray-200 text-gray-300 hover:border-blue-400 hover:text-blue-400'}`}>
                           <Check size={13} />
@@ -550,7 +549,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
                     {local.apps.map((app, i) => (
                       <div key={i} className="flex items-center gap-2">
                         {/* Mini icon */}
-                        <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center">
                           {app.icon ? (
                             <img src={app.icon} alt={app.name} className="w-full h-full object-cover"
                               onError={e => { e.target.style.display='none'; e.target.parentNode.style.backgroundColor=['#3b82f6','#ef4444','#22c55e','#a855f7','#f97316'][i%5]; e.target.parentNode.innerHTML=`<span style="color:white;font-size:10px;font-weight:bold">${app.name.charAt(0)}</span>`; }} />
@@ -563,7 +562,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
                           <p className="text-xs text-gray-400 font-mono truncate">{app.packageId}</p>
                         </div>
                         <button onClick={() => removeItem('apps', i)}
-                          className="p-1 hover:bg-red-50 rounded text-gray-300 hover:text-red-400 transition flex-shrink-0">
+                          className="p-1 hover:bg-red-50 rounded text-gray-300 hover:text-red-400 transition shrink-0">
                           <X size={12} />
                         </button>
                       </div>
@@ -580,7 +579,7 @@ function AppsURLsPanel({ data, onClose, onApply }) {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-gray-200 bg-white flex-shrink-0">
+        <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-gray-200 bg-white shrink-0">
           <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancel</button>
           <button onClick={() => onApply(local)} className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition">Apply</button>
         </div>
@@ -588,10 +587,421 @@ function AppsURLsPanel({ data, onClose, onApply }) {
     </>
   );
 }
+
+// ─── Create Creative Modal ────────────────────────────────────────────────────
+function CreateCreativeModal({ onClose, onSave, saving }) {
+  const [form, setForm] = useState({
+    name: '', cm360Id: '', dv360Id: '', status: 'active',
+    type: 'Video', format: 'Video', dv360Status: 'Servable',
+    exchangeStatus: '', duration: '', source: 'Campaign Manager 360',
+    tagWrapping: 'No', previewUrl: '',
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800";
+  const sel = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-gray-800";
+  const lbl = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5";
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+          <h2 className="text-lg font-black text-gray-900">Create Creative</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition"><X size={18} className="text-gray-500" /></button>
+        </div>
+        <div className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className={lbl}>Name <span className="text-red-400">*</span></label>
+              <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Creative name" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>CM360 ID</label>
+              <input value={form.cm360Id} onChange={e => set('cm360Id', e.target.value)} placeholder="e.g. 415645711" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>DV360 ID</label>
+              <input value={form.dv360Id} onChange={e => set('dv360Id', e.target.value)} placeholder="e.g. 643162013" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Status</label>
+              <select value={form.status} onChange={e => set('status', e.target.value)} className={sel}>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Type</label>
+              <select value={form.type} onChange={e => set('type', e.target.value)} className={sel}>
+                {['Video','Display','Native','Audio','Rich Media'].map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Format</label>
+              <select value={form.format} onChange={e => set('format', e.target.value)} className={sel}>
+                {['Video','Banner','Interstitial','Rewarded','Native'].map(f => <option key={f}>{f}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>DV360 Status</label>
+              <select value={form.dv360Status} onChange={e => set('dv360Status', e.target.value)} className={sel}>
+                {['Servable','Rejected','Pending','Not applicable'].map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Exchange Status</label>
+              <input value={form.exchangeStatus} onChange={e => set('exchangeStatus', e.target.value)} placeholder="e.g. Servable (1 of 2)" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Duration</label>
+              <input value={form.duration} onChange={e => set('duration', e.target.value)} placeholder="e.g. 30s" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Source</label>
+              <select value={form.source} onChange={e => set('source', e.target.value)} className={sel}>
+                {['Campaign Manager 360','Studio','Third-party tag','Uploaded'].map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Tag Wrapping</label>
+              <select value={form.tagWrapping} onChange={e => set('tagWrapping', e.target.value)} className={sel}>
+                <option>No</option><option>Yes</option>
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className={lbl}>Preview URL</label>
+              <input value={form.previewUrl} onChange={e => set('previewUrl', e.target.value)} placeholder="https://..." className={inp} />
+            </div>
+          </div>
+        </div>
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3 rounded-b-3xl">
+          <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition">Cancel</button>
+          <button onClick={() => onSave(form)} disabled={saving || !form.name.trim()}
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition disabled:opacity-50">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+            Create Creative
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Assign Creatives Panel (slide-in from right) ─────────────────────────────
+function AssignCreativesPanel({ creatives, onClose, onAssign, saving }) {
+  const [tab, setTab]       = useState('eligible');
+  const [search, setSearch] = useState('');
+  // ★ Convert all _id to string so Set comparison works reliably
+  const [selected, setSelected] = useState(() =>
+    new Set(creatives.filter(c => c.assigned).map(c => String(c._id)))
+  );
+
+  const STATUS_COLOR = { active: 'text-green-600', inactive: 'text-gray-400', draft: 'text-amber-500' };
+  const DV360_COLOR  = { Servable: 'text-blue-600 underline decoration-dotted', Rejected: 'text-red-500 underline decoration-dotted', Pending: 'text-amber-500 underline decoration-dotted' };
+
+  // ★ Derive assigned count from current selected state, not stale props
+  const assignedCount = selected.size;
+
+  const shown = creatives.filter(c => {
+    const id = String(c._id);
+    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase())
+      || c.cm360Id?.includes(search) || c.dv360Id?.includes(search);
+    if (tab === 'eligible') return matchSearch && c.status === 'active';
+    if (tab === 'assigned') return matchSearch && selected.has(id);
+    return matchSearch;
+  });
+
+//   const toggle    = (id) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggle    = (id) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const allChecked  = shown.length > 0 && shown.every(c => selected.has(String(c._id)));
+  const someChecked = shown.some(c => selected.has(String(c._id))) && !allChecked;
+  const toggleAll   = (v) => setSelected(s => { const n = new Set(s); shown.forEach(c => v ? n.add(String(c._id)) : n.delete(String(c._id))); return n; });
+
+  const COLS = ['Name','ID','CM360 ID','Status','Type','Format','DV360 status','Exchange status','Duration','Source','Created','Tag wrapping'];
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} />
+      <div className="fixed right-0 top-0 h-full z-50 bg-white shadow-2xl flex flex-col" style={{ width: 'min(900px, 100vw)' }}>
+
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+          <h2 className="text-base font-bold text-gray-900">Select creatives</h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition"><X size={18} className="text-gray-500" /></button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 px-6 pt-3 border-b border-gray-200 shrink-0">
+          {[
+            { key: 'all',      label: 'All' },
+            { key: 'eligible', label: 'Eligible' },
+            { key: 'assigned', label: `Assigned (${assignedCount})` },
+          ].map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 transition ${tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              {t.label}
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-2 pb-2">
+            <button className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+            <button className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Filter + Search */}
+        <div className="flex items-center gap-3 px-6 py-2.5 border-b border-gray-100 bg-gray-50/50 shrink-0">
+          <button className="flex items-center gap-1.5 text-xs text-gray-600 px-2.5 py-1.5 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Format: {shown.length} selected
+          </button>
+          <div className="flex-1 relative">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Enter a search term or select filters"
+              className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="flex-1 overflow-auto">
+          <table className="w-full text-xs min-w-[800px]">
+            <thead className="sticky top-0 bg-white border-b border-gray-200 z-10">
+              <tr>
+                <th className="px-4 py-3 w-10">
+                  <input type="checkbox" checked={allChecked}
+                    ref={el => { if (el) el.indeterminate = someChecked; }}
+                    onChange={e => toggleAll(e.target.checked)}
+                    className="w-4 h-4 rounded accent-blue-600" />
+                </th>
+                {COLS.map(col => (
+                  <th key={col} className="px-3 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    {col}{col === 'Created' && <span className="ml-1">↓</span>}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {shown.length === 0 ? (
+                <tr><td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-sm text-gray-400">No creatives found</td></tr>
+              ) : shown.map(c => (
+                <tr key={c._id}
+                  className={`border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer ${selected.has(String(c._id)) ? 'bg-blue-50/30' : ''}`}
+                  onClick={() => toggle(String(c._id))}>
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={selected.has(String(c._id))} onChange={() => toggle(String(c._id))} className="w-4 h-4 rounded accent-blue-600" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-10 bg-blue-100 rounded shrink-0 flex items-center justify-center overflow-hidden border border-blue-200">
+                        {c.previewUrl
+                          ? <img src={c.previewUrl} alt="" className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; }} />
+                          : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                        }
+                      </div>
+                      <span className="font-medium text-gray-800 truncate max-w-[120px]">{c.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 font-mono text-gray-500">{c.dv360Id || '—'}</td>
+                  <td className="px-3 py-3 font-mono text-gray-500">{c.cm360Id || '—'}</td>
+                  <td className={`px-3 py-3 font-semibold capitalize ${STATUS_COLOR[c.status] || 'text-gray-600'}`}>{c.status}</td>
+                  <td className="px-3 py-3 text-gray-600">{c.type}</td>
+                  <td className="px-3 py-3 text-gray-600">{c.format}</td>
+                  <td className={`px-3 py-3 font-medium ${DV360_COLOR[c.dv360Status] || 'text-gray-600'}`}>{c.dv360Status}</td>
+                  <td className={`px-3 py-3 ${DV360_COLOR[c.dv360Status] || 'text-gray-600'}`}>{c.exchangeStatus || '—'}</td>
+                  <td className="px-3 py-3 text-gray-500">{c.duration || '—'}</td>
+                  <td className="px-3 py-3 text-gray-500">{c.source}</td>
+                  <td className="px-3 py-3 text-gray-400 whitespace-nowrap">
+                    {c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—'}
+                  </td>
+                  <td className="px-3 py-3 text-gray-500">{c.tagWrapping}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-200 bg-white shrink-0">
+          <span className="text-xs text-gray-500">{selected.size} selected</span>
+          <div className="flex gap-2">
+            <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancel</button>
+            <button onClick={() => onAssign([...selected])} disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+              {saving ? <Loader2 size={13} className="animate-spin" /> : null}
+              Assign ({selected.size})
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Creatives Section ────────────────────────────────────────────────────────
+function CreativesSection({ io, isAdmin, campaignId, authFetch, onIOUpdate, showToast }) {
+  const [showCreate, setShowCreate] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
+  const [saving, setSaving]         = useState(false);
+
+  const creatives = io.creatives || [];
+  const assigned  = creatives.filter(c => c.assigned);
+
+  const handleCreate = async (form) => {
+    setSaving(true);
+    try {
+      const res  = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${io._id}/creatives`, {
+        method: 'POST', body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.success) { onIOUpdate(data.data); setShowCreate(false); showToast('Creative created!'); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Failed to create', 'error'); }
+    finally { setSaving(false); }
+  };
+
+  const handleAssign = async (ids) => {
+    setSaving(true);
+    try {
+      const res  = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${io._id}/creatives/assign`, {
+        method: 'PATCH', body: JSON.stringify({ creativeIds: ids }),
+      });
+      const data = await res.json();
+      if (data.success) { onIOUpdate(data.data); setShowAssign(false); showToast('Creatives assigned!'); }
+      else showToast(data.message || 'Failed', 'error');
+    } catch { showToast('Failed to assign', 'error'); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (creativeId) => {
+    if (!confirm('Delete this creative?')) return;
+    try {
+      const res  = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${io._id}/creatives/${creativeId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) { onIOUpdate(data.data); showToast('Deleted'); }
+    } catch { showToast('Failed to delete', 'error'); }
+  };
+
+  const STATUS_COLOR = { active: 'bg-green-100 text-green-700', inactive: 'bg-gray-100 text-gray-500', draft: 'bg-amber-100 text-amber-600' };
+
+  return (
+    <>
+      {showCreate && <CreateCreativeModal onClose={() => setShowCreate(false)} onSave={handleCreate} saving={saving} />}
+      {showAssign && <AssignCreativesPanel creatives={creatives} onClose={() => setShowAssign(false)} onAssign={handleAssign} saving={saving} />}
+
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-5">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+          <h3 className="text-sm font-bold text-gray-800">Creatives</h3>
+          <p className="text-xs text-gray-500 mt-0.5">Advanced ad serving rate: {io.cpmRate || 'A$0.00 CPM'}</p>
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
+          <div className="flex gap-2">
+            {isAdmin && (
+              <>
+                <button onClick={() => setShowCreate(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm">
+                  <Plus size={14} /> Assign creatives
+                </button>
+                {creatives.length > 0 && (
+                  <button onClick={() => setShowAssign(true)}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                    <Check size={14} className="text-blue-500" /> Select from existing
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+          <span className="text-xs text-gray-400 flex items-center gap-1">
+            Creative optimization
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+          </span>
+        </div>
+
+        {/* Empty state */}
+        {assigned.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-14 gap-4">
+            <div className="relative w-24 h-16 opacity-30">
+              <div className="absolute inset-0 border-2 border-gray-400 rounded-sm">
+                <div className="absolute top-2 left-2 right-2 h-2 bg-gray-300 rounded" />
+                <div className="absolute top-6 left-2 w-3 h-3 border border-gray-400" />
+                <div className="absolute top-6 left-7 right-2 h-1.5 bg-gray-300 rounded mt-0.5" />
+                <div className="absolute top-10 left-2 w-3 h-3 border border-gray-400" />
+                <div className="absolute top-10 left-7 right-2 h-1.5 bg-gray-300 rounded mt-0.5" />
+              </div>
+              <div className="absolute -top-2 -right-3 w-16 h-10 border-2 border-gray-400 rounded-sm bg-white">
+                <div className="absolute top-1 left-1 right-1 h-1.5 bg-gray-300 rounded" />
+                <div className="absolute top-3.5 right-2 w-2 h-2 rounded-full border border-gray-400" />
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 font-medium">No creatives assigned</p>
+            {isAdmin && (
+              <button onClick={() => setShowCreate(true)}
+                className="px-5 py-2 border border-blue-400 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-50 transition">
+                Assign creatives
+              </button>
+            )}
+          </div>
+        ) : (
+          /* Assigned creatives table */
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  {['Name','DV360 ID','CM360 ID','Status','Type','Format','DV360 Status','Duration','Source',''].map(h => (
+                    <th key={h} className="px-4 py-2.5 text-left font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {assigned.map(c => (
+                  <tr key={c._id} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-14 h-9 bg-blue-100 rounded border border-blue-200 flex items-center justify-center overflow-hidden shrink-0">
+                          {c.previewUrl
+                            ? <img src={c.previewUrl} alt="" className="w-full h-full object-cover" onError={e => { e.target.style.display='none'; }} />
+                            : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+                          }
+                        </div>
+                        <span className="font-medium text-gray-800 truncate max-w-[100px]">{c.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-gray-500">{c.dv360Id || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-gray-500">{c.cm360Id || '—'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_COLOR[c.status] || ''}`}>{c.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{c.type}</td>
+                    <td className="px-4 py-3 text-gray-600">{c.format}</td>
+                    <td className={`px-4 py-3 font-medium ${c.dv360Status === 'Servable' ? 'text-blue-600' : c.dv360Status === 'Rejected' ? 'text-red-500' : 'text-amber-500'}`}>{c.dv360Status}</td>
+                    <td className="px-4 py-3 text-gray-500">{c.duration || '—'}</td>
+                    <td className="px-4 py-3 text-gray-500">{c.source}</td>
+                    <td className="px-4 py-3">
+                      {isAdmin && (
+                        <button onClick={() => handleDelete(c._id)} className="p-1 hover:bg-red-50 rounded text-gray-300 hover:text-red-400 transition">
+                          <X size={13} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 function SectionRow({ label, children, onEdit, editContent, isEditing, onSave, onCancel, saving }) {
   return (
     <div className="flex items-start border-b border-gray-100 last:border-0 py-5 gap-4">
-      <div className="w-56 flex-shrink-0"><p className="text-sm font-medium text-gray-700">{label}</p></div>
+      <div className="w-56 shrink-0"><p className="text-sm font-medium text-gray-700">{label}</p></div>
       <div className="flex-1 min-w-0">
         {isEditing ? (
           <div className="space-y-3">
@@ -607,7 +1017,7 @@ function SectionRow({ label, children, onEdit, editContent, isEditing, onSave, o
         ) : children}
       </div>
       {!isEditing && onEdit && (
-        <button onClick={onEdit} className="flex-shrink-0 p-1.5 hover:bg-gray-100 rounded-lg transition text-gray-400 hover:text-gray-600">
+        <button onClick={onEdit} className="shrink-0 p-1.5 hover:bg-gray-100 rounded-lg transition text-gray-400 hover:text-gray-600">
           <Pencil size={15} />
         </button>
       )}
@@ -664,7 +1074,7 @@ function SectionCard({ title, icon, subtitle, children }) {
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-5">
       <div className="flex items-start gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/60">
-        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-0.5">{icon}</div>
+        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">{icon}</div>
         <div>
           <h3 className="text-sm font-bold text-gray-800">{title}</h3>
           {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
@@ -879,7 +1289,7 @@ export default function IODetailPage() {
               return (
                 <div>
                   <div className="flex items-start gap-2">
-                    <Check size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
+                    <Check size={14} className="text-green-500 mt-0.5 shrink-0" />
                     <div>
                       <button onClick={isAdmin ? () => setShowInventoryPanel(true) : undefined}
                         className={`text-sm font-medium ${isAdmin ? 'text-blue-600 hover:underline cursor-pointer' : 'text-gray-700'}`}>
@@ -889,7 +1299,7 @@ export default function IODetailPage() {
                     </div>
                   </div>
                   <div className="mt-3 flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5">
-                    <AlertCircle size={13} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                    <AlertCircle size={13} className="text-blue-500 mt-0.5 shrink-0" />
                     <p className="text-xs text-blue-700">
                       App mediation partners give Display &amp; Video 360 advertisers more control and access to mobile
                       app inventory. Impressions will not serve until add-on fee terms are reviewed and accepted.
@@ -959,7 +1369,7 @@ export default function IODetailPage() {
             <div className="space-y-3">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="w-4 h-4 rounded-full border-2 border-red-400 flex items-center justify-center flex-shrink-0"><X size={9} className="text-red-400" /></div>
+                  <div className="w-4 h-4 rounded-full border-2 border-red-400 flex items-center justify-center shrink-0"><X size={9} className="text-red-400" /></div>
                   <p className="text-xs font-semibold text-gray-700">Digital Content Label exclusions</p>
                 </div>
                 <div className="ml-6"><TagList items={bs.digitalContentLabels || []} emptyText="None selected" color="red" /></div>
@@ -1132,7 +1542,7 @@ export default function IODetailPage() {
               <div className="fixed inset-0 z-30" onClick={() => setShowTargetingMenu(false)} />
 
               {/* Popup menu */}
-              <div className="absolute left-0 bottom-7 z-40 bg-white border border-gray-200 rounded-xl shadow-2xl w-72 py-2 overflow-hidden">
+              <div className="absolute left-0 top-7 z-40 bg-white border border-gray-200 rounded-xl shadow-2xl w-72 py-2 overflow-hidden">
 
                 <p className="px-4 pt-1 pb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">Content</p>
                 {CONTENT_ITEMS.map(item => (
@@ -1157,6 +1567,16 @@ export default function IODetailPage() {
             </>
           )}
         </div>
+
+        {/* ══ CREATIVES ═══════════════════════════════════════════════════════ */}
+        <CreativesSection
+          io={io}
+          isAdmin={isAdmin}
+          campaignId={campaignId}
+          authFetch={authFetch}
+          onIOUpdate={setIO}
+          showToast={showToast}
+        />
 
         {/* ══ ADDITIONAL SETTINGS ═════════════════════════════════════════════ */}
         <SectionCard title="Additional settings" icon={<Settings size={14} className="text-blue-500" />}>
