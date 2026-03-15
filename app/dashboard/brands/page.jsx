@@ -87,7 +87,7 @@ function BrandModal({ brand, onSave, onClose, saving }) {
                     {/* Logo */}
                     <div className="flex items-center gap-4">
                         <div onClick={() => fileRef.current?.click()}
-                            className="w-14 h-14 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:border-blue-400 transition overflow-hidden flex-shrink-0"
+                            className="w-14 h-14 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:border-blue-400 transition overflow-hidden shrink-0"
                             style={{ background: preview ? 'transparent' : color + '15' }}>
                             {preview
                                 ? <img src={preview} className="w-full h-full object-cover" />
@@ -262,6 +262,12 @@ export default function BrandsPage() {
             )}
 
 
+            <div className="bg-slate-50 flex items-center px-8 py-4">
+                <h2 className="text-2xl font-medium text-gray-700">Advertiser</h2>
+                <h2 className="text-lg font-medium text-gray-900 mx-4 px-4 bg-gray-100 rounded-md">Limited Access</h2>
+            </div>
+
+
             <BrandCharts brands={brands} chartDate={chartDate} />
 
             <div className="flex items-center gap-4 px-4">
@@ -423,7 +429,7 @@ export default function BrandsPage() {
                         <input
                             value={search} onChange={e => setSearch(e.target.value)}
                             placeholder="Search brands…"
-                            className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-52"
+                            className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-52 text-black"
                         />
                     </div>
 
@@ -513,7 +519,7 @@ export default function BrandsPage() {
                                 {/* Total */}
                                 <Th label="Total" sortKey="total" sortState={sort} onSort={handleSort} align="right" />
                                 {/* Active / Inactive */}
-                                <Th label="Active / Inactive" sortKey="active" sortState={sort} onSort={handleSort} />
+                                {/* <Th label="Active / Inactive" sortKey="active" sortState={sort} onSort={handleSort} /> */}
                                 {/* Impressions */}
                                 <Th label="Impressions" sortKey="impressions" sortState={sort} onSort={handleSort} align="right" />
                                 {/* Budget */}
@@ -527,7 +533,7 @@ export default function BrandsPage() {
                             </tr>
                         </thead>
 
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-gray-100 border-b border-gray-200">
                             {sorted.map((brand, idx) => {
                                 const s = brand.stats || {};
                                 const isSel = selected.has(brand._id);
@@ -554,12 +560,12 @@ export default function BrandsPage() {
                                         <td className="px-4 py-3.5">
                                             <div className="flex items-center gap-2.5">
                                                 {/* Logo or initial */}
-                                                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden shadow-sm"
+                                                {/* <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0 overflow-hidden shadow-sm"
                                                     style={{ background: brand.logo ? 'transparent' : brand.color || '#1a73e8' }}>
                                                     {brand.logo
                                                         ? <img src={brand.logo} className="w-full h-full object-cover" />
                                                         : brand.name.charAt(0).toUpperCase()}
-                                                </div>
+                                                </div> */}
                                                 <div>
                                                     <Link href={`/dashboard/brands/${brand._id}`}
                                                         className="text-blue-600 hover:underline font-medium leading-none">
@@ -580,9 +586,9 @@ export default function BrandsPage() {
                                         </td>
 
                                         {/* Active / Inactive bar */}
-                                        <td className="px-4 py-3.5">
+                                        {/* <td className="px-4 py-3.5">
                                             <MiniBar active={s.active || 0} total={s.total || 0} color={brand.color} />
-                                        </td>
+                                        </td> */}
 
                                         {/* Impressions */}
                                         <td className="px-4 py-3.5 text-right tabular-nums text-gray-600">
@@ -629,7 +635,7 @@ export default function BrandsPage() {
                         </tbody>
 
                         {/* Footer totals row */}
-                        {sorted.length > 1 && (
+                        {/* {sorted.length > 1 && (
                             <tfoot>
                                 <tr className="border-t-2 border-gray-200 bg-gray-50/80">
                                     <td colSpan={3} className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">
@@ -649,7 +655,7 @@ export default function BrandsPage() {
                                     {isAdmin && <td />}
                                 </tr>
                             </tfoot>
-                        )}
+                        )} */}
                     </table>
                 </div>
             )}

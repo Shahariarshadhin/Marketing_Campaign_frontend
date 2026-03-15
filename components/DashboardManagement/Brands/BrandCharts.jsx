@@ -86,10 +86,10 @@ function LegendRow({ color, label, pct, value, prefix = "" }) {
   return (
     <div className="flex items-center justify-between py-1">
       <div className="flex items-center gap-2 min-w-0">
-        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
+        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
         <span className="text-xs text-gray-600 truncate">{label}</span>
       </div>
-      <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+      <div className="flex items-center gap-3 shrink-0 ml-3">
         <span className="text-xs text-gray-400 tabular-nums w-16 text-right">
           {prefix}{value.toLocaleString()}
         </span>
@@ -173,7 +173,7 @@ export default function BrandCharts({ brands, chartDate }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-4 mb-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-8">
 
       {/* ── Chart 1: Budget distribution ───────────────────────────────────── */}
       <ChartCard
@@ -186,7 +186,7 @@ export default function BrandCharts({ brands, chartDate }) {
           <p className="text-xs text-gray-400 py-4 text-center">No budget data yet</p>
         ) : (
           <div className="flex items-center gap-5">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <DonutChart segments={budgetPerBrand} size={120} thickness={20} />
             </div>
             <div className="flex-1 min-w-0 space-y-0.5">
@@ -216,7 +216,7 @@ export default function BrandCharts({ brands, chartDate }) {
           <p className="text-xs text-gray-400 py-4 text-center">No impression data yet</p>
         ) : (
           <div className="flex items-center gap-5">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <DonutChart segments={impressionPerBrand} size={120} thickness={20} />
             </div>
             <div className="flex-1 min-w-0 space-y-0.5">
@@ -236,7 +236,7 @@ export default function BrandCharts({ brands, chartDate }) {
       </ChartCard>
 
       {/* ── Chart 3: Campaign status ────────────────────────────────────────── */}
-      <ChartCard
+      {/* <ChartCard
         title={`Pacing (${dateLabel})`}
         total={String(totalCampaigns)}
         totalLabel={`active insertion orders across all brands`}
@@ -246,7 +246,7 @@ export default function BrandCharts({ brands, chartDate }) {
           <p className="text-xs text-gray-400 py-4 text-center">No campaigns yet</p>
         ) : (
           <div className="flex items-center gap-5">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <DonutChart segments={statusSegments} size={120} thickness={20} />
             </div>
             <div className="flex-1 min-w-0 space-y-0.5">
@@ -268,7 +268,7 @@ export default function BrandCharts({ brands, chartDate }) {
             </div>
           </div>
         )}
-      </ChartCard>
+      </ChartCard> */}
 
     </div>
   );
