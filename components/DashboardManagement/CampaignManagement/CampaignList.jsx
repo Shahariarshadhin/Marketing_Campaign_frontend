@@ -1,6 +1,7 @@
+
 "use client";
-import { useState } from 'react';
-import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -15,7 +16,7 @@ function fmtShort(iso) {
 function getCF(obj, key) {
   if (!obj || !key) return null;
   if (typeof obj.get === 'function') return obj.get(key) ?? null;
-  if (obj instanceof Map)           return obj.get(key) ?? null;
+  if (obj instanceof Map) return obj.get(key) ?? null;
   return obj[key] ?? null;
 }
 
@@ -26,27 +27,98 @@ function fmtCFVal(v) {
   return String(v);
 }
 
-// ─── Date range bar ────────────────────────────────────────────────────────────
+// ─── DV360-style filter bar ────────────────────────────────────────────────────
+function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, onClear, campaigns }) {
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+
+  const STATUS_OPTIONS = ['All', 'Active', 'Paused', 'Draft', 'Scheduled', 'Completed'];
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap">
+      {/* DV360 funnel icon with notification dot */}
+      <div className="relative flex-shrink-0">
+        <div className="w-8 h-8 flex items-center justify-center text-blue-600">
+          <Filter size={17} strokeWidth={2} />
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white text-white flex items-center justify-center" style={{ fontSize: '7px' }}>1</span>
+        </div>
+      </div>
+
+      {/* Status chip */}
+      <div className="relative flex-shrink-0">
+        <div className="flex items-center gap-1 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+          <span>Status: </span>
+          <button
+            onClick={() => setShowStatusMenu(v => !v)}
+            className="flex items-center gap-0.5 font-semibold text-gray-800 hover:text-blue-600 transition">
+            {statusFilter === 'All' ? 'Active' : statusFilter}
+            <ChevronDown size={11} className="ml-0.5" />
+          </button>
+          <button onClick={() => onStatusChange('All')}
+            className="ml-1 hover:text-red-500 transition text-gray-400">
+            <X size={12} />
+          </button>
+        </div>
+
+        {/* Status dropdown */}
+        {showStatusMenu && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setShowStatusMenu(false)} />
+            <div className="absolute left-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[130px]">
+              {STATUS_OPTIONS.map(s => (
+                <button key={s} onClick={() => { onStatusChange(s); setShowStatusMenu(false); }}
+                  className={`w-full text-left px-4 py-2 text-sm transition
+                    ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Search input — grows to fill */}
+      <div className="flex-1 min-w-[200px] relative">
+        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          value={searchText}
+          onChange={e => onSearchChange(e.target.value)}
+          placeholder="Enter a search term or select filters"
+          className="w-full pl-8 pr-3 py-1.5 text-sm text-gray-700 bg-transparent border-0 focus:outline-none placeholder-gray-400"
+        />
+      </div>
+
+      {/* Clear / close */}
+      {(searchText || statusFilter !== 'All') && (
+        <button onClick={onClear}
+          className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition">
+          <X size={15} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+
 function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDateChange, loadingDaily, dailyDataMap, campaigns }) {
   const today = todayISO();
 
   const presets = [
-    { label: 'Today',     start: today,        end: today },
-    { label: 'Yesterday', start: offsetISO(1),  end: offsetISO(1) },
-    { label: '7 days',    start: offsetISO(6),  end: today },
-    { label: '30 days',   start: offsetISO(29), end: today },
-    { label: '90 days',   start: offsetISO(89), end: today },
+    { label: 'Today', start: today, end: today },
+    { label: 'Yesterday', start: offsetISO(1), end: offsetISO(1) },
+    { label: '7 days', start: offsetISO(6), end: today },
+    { label: '30 days', start: offsetISO(29), end: today },
+    { label: '90 days', start: offsetISO(89), end: today },
   ];
 
-  const isPreset   = (p) => tableDate === p.start && tableEndDate === p.end;
+  const isPreset = (p) => tableDate === p.start && tableEndDate === p.end;
   const isSingleDay = tableDate === tableEndDate;
-  const hasEntries  = Object.keys(dailyDataMap || {}).length;
-  const rangeLabel  = tableDate === tableEndDate
+  const hasEntries = Object.keys(dailyDataMap || {}).length;
+  const rangeLabel = tableDate === tableEndDate
     ? fmtShort(tableDate)
     : `${fmtShort(tableDate)} → ${fmtShort(tableEndDate)}`;
 
   return (
-    <div className="bg-white border border-blue-100 rounded-xl mx-4 mt-3 mb-1 shadow-sm overflow-hidden">
+    <div className="bg-white border border-blue-100 rounded-xl  my-3 shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-2.5 flex-wrap border-b border-blue-50">
         <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
           <CalendarDays size={14} />
@@ -144,6 +216,21 @@ export default function CampaignList({
 }) {
   // ★ Controls visibility of Enter Data + action buttons columns
   const [showRowActions, setShowRowActions] = useState(false);
+  // ★ DV360-style filter bar state
+  const [statusFilter, setStatusFilter] = useState('Active');
+  const [searchText, setSearchText] = useState('');
+
+  // Apply status + search filter on top of parent-provided campaigns
+  const filteredCampaigns = useMemo(() => {
+    return campaigns.filter(c => {
+      const matchStatus = statusFilter === 'All'
+        || c.status?.toLowerCase() === statusFilter.toLowerCase()
+        || (statusFilter === 'Active' && c.active);
+      const matchSearch = !searchText.trim()
+        || c.name?.toLowerCase().includes(searchText.toLowerCase());
+      return matchStatus && matchSearch;
+    });
+  }, [campaigns, statusFilter, searchText]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -151,11 +238,11 @@ export default function CampaignList({
 
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm mb-1 p-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="space-y-3">
             <h1 className="text-2xl font-semibold text-gray-800">Campaigns</h1>
             <div className="flex gap-2">
               {/* ★ Eye toggle button */}
-              <button
+              {/* <button
                 onClick={() => setShowRowActions(v => !v)}
                 title={showRowActions ? 'Hide actions' : 'Show actions'}
                 className={`flex items-center gap-2 px-4 py-2 shadow-lg rounded-md transition border text-sm font-medium
@@ -164,6 +251,12 @@ export default function CampaignList({
                     : 'bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-600'}`}>
                 {showRowActions ? <EyeOff size={16} /> : <Eye size={16} />}
                 {showRowActions ? 'Hide Actions' : 'Show Actions'}
+              </button> */}
+
+
+              <button onClick={onCreateClick}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 shadow-lg rounded-md transition border border-green-200">
+                <Plus size={18} /> Create Campaign
               </button>
 
               <button onClick={() => setShowColumnManager(!showColumnManager)}
@@ -174,10 +267,7 @@ export default function CampaignList({
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
                 <Plus size={18} /> Manage Fields
               </button>
-              <button onClick={onCreateClick}
-                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-green-200">
-                <Plus size={18} /> Create Campaign
-              </button>
+
             </div>
           </div>
 
@@ -194,17 +284,17 @@ export default function CampaignList({
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {[
-                  { key: 'checkbox',      label: 'Checkbox' },
-                  { key: 'toggle',        label: 'On/Off' },
-                  { key: 'delivery',      label: 'Delivery' },
-                  { key: 'actions',       label: 'Actions' },
-                  { key: 'results',       label: 'Results' },
+                  { key: 'checkbox', label: 'Checkbox' },
+                  { key: 'toggle', label: 'On/Off' },
+                  { key: 'delivery', label: 'Delivery' },
+                  { key: 'actions', label: 'Actions' },
+                  { key: 'results', label: 'Results' },
                   { key: 'costPerResult', label: 'Cost per Result' },
-                  { key: 'budget',        label: 'Budget' },
-                  { key: 'amountSpent',   label: 'Amount Spent' },
-                  { key: 'impressions',   label: 'Impressions' },
-                  { key: 'reach',         label: 'Reach' },
-                  { key: 'ends',          label: 'Ends' },
+                  { key: 'budget', label: 'Budget' },
+                  { key: 'amountSpent', label: 'Amount Spent' },
+                  { key: 'impressions', label: 'Impressions' },
+                  { key: 'reach', label: 'Reach' },
+                  { key: 'ends', label: 'Ends' },
                 ].map(col => (
                   <label key={col.key} className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={visibleColumns[col.key] !== false}
@@ -240,6 +330,8 @@ export default function CampaignList({
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
         </div>
 
+
+
         {/* ── Date range filter bar ─────────────────────────────────────────── */}
         {onTableDateChange && (
           <TableDateBar
@@ -249,7 +341,7 @@ export default function CampaignList({
             onTableEndDateChange={onTableEndDateChange}
             loadingDaily={loadingDaily}
             dailyDataMap={dailyDataMap}
-            campaigns={campaigns}
+            campaigns={filteredCampaigns}
           />
         )}
 
@@ -260,6 +352,18 @@ export default function CampaignList({
           </div>
         )}
 
+        {/* ── DV360-style filter bar ────────────────────────────────────── */}
+        <div className="bg-white border border-gray-200 overflow-hidden">
+          <FilterBar
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            onClear={() => { setStatusFilter('All'); setSearchText(''); }}
+            campaigns={campaigns}
+          />
+        </div>
+
         {/* Campaign Table */}
         {!loading && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -268,17 +372,17 @@ export default function CampaignList({
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     {visibleColumns.checkbox && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase"><input type="checkbox" className="rounded" /></th>}
-                    {visibleColumns.toggle   && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">On/Off</th>}
+                    {visibleColumns.toggle && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">On/Off</th>}
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Campaign</th>
-                    {visibleColumns.delivery      && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Delivery</th>}
-                    {visibleColumns.actions       && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>}
-                    {visibleColumns.results       && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Results</th>}
+                    {visibleColumns.delivery && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Delivery</th>}
+                    {visibleColumns.actions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>}
+                    {visibleColumns.results && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Results</th>}
                     {visibleColumns.costPerResult && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Cost per Result</th>}
-                    {visibleColumns.budget        && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Budget</th>}
-                    {visibleColumns.amountSpent   && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Amount Spent</th>}
-                    {visibleColumns.impressions   && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Impressions</th>}
-                    {visibleColumns.reach         && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Reach</th>}
-                    {visibleColumns.ends          && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Ends</th>}
+                    {visibleColumns.budget && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Budget</th>}
+                    {visibleColumns.amountSpent && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Amount Spent</th>}
+                    {visibleColumns.impressions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Impressions</th>}
+                    {visibleColumns.reach && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Reach</th>}
+                    {visibleColumns.ends && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Ends</th>}
                     {customFields.map(f =>
                       visibleColumns[`custom_${f.name}`] !== false && (
                         <th key={f._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">{f.label}</th>
@@ -307,14 +411,14 @@ export default function CampaignList({
                 </thead>
 
                 <tbody className="divide-y divide-gray-200">
-                  {campaigns.length === 0 ? (
+                  {filteredCampaigns.length === 0 ? (
                     <tr>
                       <td colSpan="20" className="px-4 py-8 text-center text-gray-500">
                         No campaigns found. Create your first campaign!
                       </td>
                     </tr>
                   ) : (
-                    campaigns.map(campaign => {
+                    filteredCampaigns.map(campaign => {
                       const hasDaily = tableDate && dailyDataMap && dailyDataMap[campaign._id];
                       return (
                         <tr key={campaign._id}
@@ -351,7 +455,7 @@ export default function CampaignList({
                           {visibleColumns.delivery && (
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full ${campaign.status==='active'?'bg-green-500':campaign.status==='draft'?'bg-gray-400':'bg-yellow-500'}`} />
+                                <span className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
                                 <span className="text-sm text-gray-700">
                                   <CellVal campaignId={campaign._id} fieldKey="delivery" defaultVal={campaign.delivery} dailyDataMap={dailyDataMap} tableDate={tableDate} />
                                 </span>
@@ -404,7 +508,7 @@ export default function CampaignList({
                                 {(() => {
                                   if (tableDate && dailyDataMap?.[campaign._id]) {
                                     const rec = dailyDataMap[campaign._id];
-                                    const v   = getCF(rec.customFields, field.name);
+                                    const v = getCF(rec.customFields, field.name);
                                     const str = fmtCFVal(v);
                                     if (str) return (
                                       <span className="font-semibold text-blue-700">
@@ -416,8 +520,8 @@ export default function CampaignList({
                                     );
                                     return <span className="text-gray-300 italic text-xs">—</span>;
                                   }
-                                  const v   = getCF(campaign.customFields, field.name)
-                                           ?? getCF(campaign.customFieldsData, field.name);
+                                  const v = getCF(campaign.customFields, field.name)
+                                    ?? getCF(campaign.customFieldsData, field.name);
                                   const str = fmtCFVal(v);
                                   return str
                                     ? <span className="text-gray-800">{str}</span>
@@ -475,13 +579,13 @@ export default function CampaignList({
             </div>
 
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600 flex items-center justify-between">
-              <span>Results from {campaigns.length} campaigns</span>
+              <span>Results from {filteredCampaigns.length} of {campaigns.length} campaigns</span>
               {tableDate && (
                 <span className="text-xs text-blue-600 font-medium flex items-center gap-1">
                   <CalendarDays size={12} />
                   {tableDate === tableEndDate
-                    ? `${Object.keys(dailyDataMap || {}).length}/${campaigns.length} have entries for ${fmtShort(tableDate)}`
-                    : `${Object.keys(dailyDataMap || {}).length}/${campaigns.length} have data · ${fmtShort(tableDate)} → ${fmtShort(tableEndDate)} (summed)`
+                    ? `${Object.keys(dailyDataMap || {}).length}/${filteredCampaigns.length} have entries for ${fmtShort(tableDate)}`
+                    : `${Object.keys(dailyDataMap || {}).length}/${filteredCampaigns.length} have data · ${fmtShort(tableDate)} → ${fmtShort(tableEndDate)} (summed)`
                   }
                 </span>
               )}

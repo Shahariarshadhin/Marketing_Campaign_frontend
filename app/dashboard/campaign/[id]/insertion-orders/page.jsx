@@ -484,9 +484,9 @@ export default function InsertionOrdersPage() {
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-30">
+      {/* <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-30">
         <div className="max-w-full mx-auto">
-          {/* Breadcrumb */}
+         
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
             <Link href="/dashboard/brands" className="hover:text-gray-700 transition">Brands</Link>
             <ChevronRight size={12} />
@@ -516,9 +516,9 @@ export default function InsertionOrdersPage() {
               </div>
             </div>
 
-            {/* Action bar — matches DV360 toolbar */}
+           
             <div className="flex items-center gap-2">
-              {/* Tab pills */}
+             
               <div className="flex items-center bg-gray-100 rounded-xl p-1 text-xs font-semibold gap-1">
                 <Link href={`/dashboard/campaign/${campaignId}/content`}
                   className="px-3 py-1.5 text-gray-500 hover:text-gray-700 rounded-lg transition">
@@ -542,9 +542,9 @@ export default function InsertionOrdersPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
-      <div className="max-w-full mx-auto px-6 py-5 space-y-5">
+      <div className="max-w-full mx-auto px-6 py-5">
 
         {/* ── DV360-style sparkline stat cards ────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -601,7 +601,7 @@ export default function InsertionOrdersPage() {
         </div>
 
         {/* ── Toolbar row — matches DV360 ─────────────────────────────────── */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap py-8">
           <div className="flex items-center gap-2">
             {isAdmin && (
               <button onClick={() => { setEditIO(null); setShowModal(true); }}
@@ -624,7 +624,7 @@ export default function InsertionOrdersPage() {
         </div>
 
         {/* ── Search filter bar — matches DV360 ───────────────────────────── */}
-        <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 flex items-center gap-3">
+        <div className="bg-white border border-gray-200  px-4 pt-2.5 flex items-center gap-3">
           <Filter size={14} className="text-gray-400 flex-shrink-0" />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Enter a search term or select filters"
@@ -637,7 +637,7 @@ export default function InsertionOrdersPage() {
         </div>
 
         {/* ── Table — DV360 style ──────────────────────────────────────────── */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-gray-200  shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b border-gray-100">
