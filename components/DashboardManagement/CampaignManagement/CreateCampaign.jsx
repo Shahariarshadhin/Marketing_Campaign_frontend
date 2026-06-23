@@ -139,6 +139,8 @@ export default function CreateCampaign({
                 <option value="draft">Draft</option>
                 <option value="active">Active</option>
                 <option value="scheduled">Scheduled</option>
+                <option value="paused">Paused</option>
+                <option value="completed">Completed</option>
               </select>
             </div>
             <div>

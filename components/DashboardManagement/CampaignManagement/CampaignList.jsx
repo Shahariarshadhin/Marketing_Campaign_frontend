@@ -34,7 +34,7 @@ function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, o
   const STATUS_OPTIONS = ['All', 'Active', 'Paused', 'Draft', 'Scheduled', 'Completed'];
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap">
+    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap ">
       {/* DV360 funnel icon with notification dot */}
       <div className="relative flex-shrink-0">
         <div className="w-8 h-8 flex items-center justify-center text-blue-600">
@@ -353,7 +353,7 @@ export default function CampaignList({
         )}
 
         {/* ── DV360-style filter bar ────────────────────────────────────── */}
-        <div className="bg-white border border-gray-200 overflow-hidden">
+        <div className="bg-white border border-gray-200">
           <FilterBar
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
@@ -371,27 +371,27 @@ export default function CampaignList({
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {visibleColumns.checkbox && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase"><input type="checkbox" className="rounded" /></th>}
-                    {visibleColumns.toggle && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">On/Off</th>}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Campaign</th>
-                    {visibleColumns.delivery && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Delivery</th>}
-                    {visibleColumns.actions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>}
-                    {visibleColumns.results && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Results</th>}
-                    {visibleColumns.costPerResult && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Cost per Result</th>}
-                    {visibleColumns.budget && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Budget</th>}
-                    {visibleColumns.amountSpent && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Amount Spent</th>}
-                    {visibleColumns.impressions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">Impressions</th>}
-                    {visibleColumns.reach && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Reach</th>}
-                    {visibleColumns.ends && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Ends</th>}
+                    {visibleColumns.checkbox && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 "><input type="checkbox" className="rounded" /></th>}
+                    {visibleColumns.toggle && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">On/Off</th>}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Campaign</th>
+                    {visibleColumns.delivery && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Delivery</th>}
+                    {visibleColumns.actions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Actions</th>}
+                    {visibleColumns.results && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Results</th>}
+                    {visibleColumns.costPerResult && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Cost per Result</th>}
+                    {visibleColumns.budget && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">Budget</th>}
+                    {visibleColumns.amountSpent && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Amount Spent</th>}
+                    {visibleColumns.impressions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">Impressions</th>}
+                    {visibleColumns.reach && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Reach</th>}
+                    {visibleColumns.ends && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Ends</th>}
                     {customFields.map(f =>
                       visibleColumns[`custom_${f.name}`] !== false && (
-                        <th key={f._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase border border-gray-200">{f.label}</th>
+                        <th key={f._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">{f.label}</th>
                       )
                     )}
 
                     {/* ★ Daily Entry + Actions column header — only when visible */}
                     {showRowActions && userRole === 'admin' && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase bg-amber-50 whitespace-nowrap">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  bg-amber-50 whitespace-nowrap">
                         Daily Entry
                       </th>
                     )}
