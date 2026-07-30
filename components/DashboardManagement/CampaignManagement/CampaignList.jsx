@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
@@ -187,6 +187,124 @@ function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate }) 
   );
 }
 
+// ─── Column resize handle (DOM-direct, smooth) ─────────────────────────────
+function ColResizeHandle({ colKey, currentWidth, onCommit, min = 4 }) {
+  const onMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startWidth = currentWidth;
+    let latestWidth = startWidth;
+    let rafId = null;
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const colEl = document.querySelector(`col[data-col-key="${colKey}"]`);
+    const tableEl = colEl ? colEl.closest('table') : null;
+
+    if (tableEl && !tableEl.dataset.dragBaseWidth) {
+      tableEl.dataset.dragBaseWidth = tableEl.offsetWidth;
+    }
+    const baseTableWidth = tableEl ? parseFloat(tableEl.dataset.dragBaseWidth || tableEl.offsetWidth) : 0;
+
+    const onMove = (ev) => {
+      const delta = ev.clientX - startX;
+      latestWidth = Math.max(min, startWidth + delta);
+      if (rafId == null) {
+        rafId = requestAnimationFrame(() => {
+          if (colEl) colEl.style.width = `${latestWidth}px`;
+          if (tableEl) tableEl.style.width = `${baseTableWidth + (latestWidth - startWidth)}px`;
+          rafId = null;
+        });
+      }
+    };
+
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (tableEl) delete tableEl.dataset.dragBaseWidth;
+      onCommit(latestWidth);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className="absolute top-0 right-0 translate-x-1/2 w-1.5 h-full cursor-col-resize z-20 hover:bg-blue-400/60 active:bg-blue-500/70"
+    />
+  );
+}
+
+// ─── Row resize handle (DOM-direct, smooth) ────────────────────────────────
+function RowResizeHandle({ rowId, currentHeight, onCommit, min = 4 }) {
+  const onMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startY = e.clientY;
+    const startHeight = currentHeight;
+    let latestHeight = startHeight;
+    let rafId = null;
+
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+
+    const rowEl = document.querySelector(`tr[data-row-id="${rowId}"]`);
+
+    const onMove = (ev) => {
+      const delta = ev.clientY - startY;
+      latestHeight = Math.max(min, startHeight + delta);
+      if (rafId == null) {
+        rafId = requestAnimationFrame(() => {
+          if (rowEl) rowEl.style.height = `${latestHeight}px`;
+          rafId = null;
+        });
+      }
+    };
+
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (rafId) cancelAnimationFrame(rafId);
+      onCommit(latestHeight);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className="absolute left-0 bottom-0 translate-y-1/2 w-full h-1.5 cursor-row-resize z-20 hover:bg-blue-400/60 active:bg-blue-500/70"
+    />
+  );
+}
+
+// ─── Clips cell content to an exact pixel box, ignoring content size ───────
+function ClipCell({ height, className = '', children }) {
+  return (
+    <div
+      style={{ height, overflow: 'hidden' }}
+      className={`flex items-center min-w-0 ${className}`}
+    >
+      <div className="min-w-0 w-full truncate">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function CampaignList({
   campaigns,
@@ -219,6 +337,47 @@ export default function CampaignList({
   // ★ DV360-style filter bar state
   const [statusFilter, setStatusFilter] = useState('Active');
   const [searchText, setSearchText] = useState('');
+
+  const tableRef = useRef(null);
+  const [colWidths, setColWidths] = useState({});
+  const [rowHeights, setRowHeights] = useState({});
+  const getColWidth = (key, fallback) => colWidths[key] ?? fallback;
+  const setColWidth = (key, w) => setColWidths(prev => ({ ...prev, [key]: w }));
+  const getRowHeight = (id) => rowHeights[id] ?? 56;
+  const setRowHeight = (id, h) => setRowHeights(prev => ({ ...prev, [id]: h }));
+
+  // ★ Build the live column list based on visibleColumns / customFields / showRowActions
+  const customFieldDefs = useMemo(() =>
+    customFields
+      .filter(f => visibleColumns[`custom_${f.name}`] !== false)
+      .map(f => ({ key: `custom_${f.name}`, label: f.label, width: 160, field: f })),
+    [customFields, visibleColumns]
+  );
+
+  const columnDefs = useMemo(() => {
+    const defs = [];
+    if (visibleColumns.checkbox) defs.push({ key: 'checkbox', label: '', width: 44, resizable: false });
+    if (visibleColumns.toggle) defs.push({ key: 'toggle', label: 'On/Off', width: 90 });
+    defs.push({ key: 'name', label: 'Campaign', width: 220 }); // always visible
+    if (visibleColumns.delivery) defs.push({ key: 'delivery', label: 'Delivery', width: 140 });
+    if (visibleColumns.actions) defs.push({ key: 'actions', label: 'Actions', width: 110 });
+    if (visibleColumns.results) defs.push({ key: 'results', label: 'Results', width: 110 });
+    if (visibleColumns.costPerResult) defs.push({ key: 'costPerResult', label: 'Cost per Result', width: 130 });
+    if (visibleColumns.budget) defs.push({ key: 'budget', label: 'Budget', width: 120 });
+    if (visibleColumns.amountSpent) defs.push({ key: 'amountSpent', label: 'Amount Spent', width: 130 });
+    if (visibleColumns.impressions) defs.push({ key: 'impressions', label: 'Impressions', width: 120 });
+    if (visibleColumns.reach) defs.push({ key: 'reach', label: 'Reach', width: 110 });
+    if (visibleColumns.ends) defs.push({ key: 'ends', label: 'Ends', width: 110 });
+    defs.push(...customFieldDefs);
+    if (showRowActions && userRole === 'admin') defs.push({ key: 'dailyEntry', label: 'Daily Entry', width: 140 });
+    defs.push({ key: 'lastCol', label: '', width: showRowActions ? 110 : 50, resizable: false });
+    return defs;
+  }, [visibleColumns, customFieldDefs, showRowActions, userRole]);
+
+  const totalTableWidth = useMemo(
+    () => columnDefs.reduce((sum, c) => sum + (colWidths[c.key] ?? c.width), 0),
+    [columnDefs, colWidths]
+  );
 
   // Apply status + search filter on top of parent-provided campaigns
   const filteredCampaigns = useMemo(() => {
@@ -365,177 +524,148 @@ export default function CampaignList({
         </div>
 
         {/* Campaign Table */}
+        {/* Campaign Table */}
         {!loading && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table
+                ref={tableRef}
+                className="border-collapse text-sm"
+                style={{ tableLayout: 'fixed', width: totalTableWidth }}
+              >
+                <colgroup>
+                  {columnDefs.map(c => (
+                    <col key={c.key} data-col-key={c.key} style={{ width: getColWidth(c.key, c.width) }} />
+                  ))}
+                </colgroup>
+
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {visibleColumns.checkbox && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 "><input type="checkbox" className="rounded" /></th>}
-                    {visibleColumns.toggle && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">On/Off</th>}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Campaign</th>
-                    {visibleColumns.delivery && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Delivery</th>}
-                    {visibleColumns.actions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Actions</th>}
-                    {visibleColumns.results && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Results</th>}
-                    {visibleColumns.costPerResult && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Cost per Result</th>}
-                    {visibleColumns.budget && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">Budget</th>}
-                    {visibleColumns.amountSpent && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Amount Spent</th>}
-                    {visibleColumns.impressions && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">Impressions</th>}
-                    {visibleColumns.reach && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Reach</th>}
-                    {visibleColumns.ends && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 ">Ends</th>}
-                    {customFields.map(f =>
-                      visibleColumns[`custom_${f.name}`] !== false && (
-                        <th key={f._id} className="px-4 py-3 text-left text-xs font-medium text-gray-600  border border-gray-200">{f.label}</th>
-                      )
-                    )}
-
-                    {/* ★ Daily Entry + Actions column header — only when visible */}
-                    {showRowActions && userRole === 'admin' && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600  bg-amber-50 whitespace-nowrap">
-                        Daily Entry
-                      </th>
-                    )}
-                    {/* ★ Eye toggle in last header cell */}
-                    <th className="px-3 py-3 text-right">
-                      <button
-                        onClick={() => setShowRowActions(v => !v)}
-                        title={showRowActions ? 'Hide actions' : 'Show actions'}
-                        className={`p-1.5 rounded-lg border transition
-                          ${showRowActions
-                            ? 'bg-blue-50 border-blue-200 text-blue-600'
-                            : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300'}`}>
-                        {showRowActions ? <EyeOff size={14} /> : <Eye size={14} />}
-                      </button>
-                    </th>
+                    {columnDefs.map(c => {
+                      const isLastColEye = c.key === 'lastCol';
+                      return (
+                        <th
+                          key={c.key}
+                          className="relative px-4 py-3 text-left text-xs font-medium text-gray-600 border border-gray-200 overflow-hidden whitespace-nowrap"
+                        >
+                          {c.key === 'checkbox' && <input type="checkbox" className="rounded" />}
+                          {c.key !== 'checkbox' && !isLastColEye && c.label}
+                          {isLastColEye && (
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => setShowRowActions(v => !v)}
+                                title={showRowActions ? 'Hide actions' : 'Show actions'}
+                                className={`p-1.5 rounded-lg border transition
+                                  ${showRowActions
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300'}`}>
+                                {showRowActions ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                            </div>
+                          )}
+                          {c.resizable !== false && (
+                            <ColResizeHandle
+                              colKey={c.key}
+                              currentWidth={getColWidth(c.key, c.width)}
+                              onCommit={w => setColWidth(c.key, w)}
+                            />
+                          )}
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-gray-200">
+                <tbody>
                   {filteredCampaigns.length === 0 ? (
                     <tr>
-                      <td colSpan="20" className="px-4 py-8 text-center text-gray-500">
+                      <td colSpan={columnDefs.length} className="px-4 py-8 text-center text-gray-500 border border-gray-200">
                         No campaigns found. Create your first campaign!
                       </td>
                     </tr>
                   ) : (
                     filteredCampaigns.map(campaign => {
                       const hasDaily = tableDate && dailyDataMap && dailyDataMap[campaign._id];
+                      const rh = getRowHeight(campaign._id);
+
                       return (
-                        <tr key={campaign._id}
-                          className={`hover:bg-gray-50 transition ${tableDate && !hasDaily ? 'opacity-75' : ''}`}>
+                        <tr
+                          key={campaign._id}
+                          data-row-id={campaign._id}
+                          className={`hover:bg-gray-50 transition ${tableDate && !hasDaily ? 'opacity-75' : ''}`}
+                          style={{ height: rh }}
+                        >
+                          {columnDefs.map((c, idx) => {
+                            let content = null;
 
-                          {visibleColumns.checkbox && <td className="px-4 py-3"><input type="checkbox" className="rounded" /></td>}
-                          {visibleColumns.toggle && (
-                            <td className="px-4 py-3">
-                              <button onClick={() => onToggle(campaign._id)}
-                                className={`w-10 h-6 rounded-full transition ${campaign.active ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
-                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition ${campaign.active ? 'right-1' : 'left-1'}`} />
-                              </button>
-                            </td>
-                          )}
-
-                          {/* Campaign name */}
-                          <td className="px-4 py-3">
-                            <Link
-                              href={userRole === 'admin'
-                                ? `/dashboard/campaign/${campaign._id}/insertion-orders`
-                                : `/viewer/campaign/${campaign._id}`}
-                              className="text-blue-600 hover:underline font-medium">
-                              {campaign.name}
-                            </Link>
-                            {tableDate && (
-                              <div className="text-xs mt-0.5">
-                                {hasDaily
-                                  ? <span className="text-emerald-600 font-medium">● has entry</span>
-                                  : <span className="text-gray-300">○ no entry</span>}
-                              </div>
-                            )}
-                          </td>
-
-                          {visibleColumns.delivery && (
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
-                                <span className="text-sm text-gray-700">
-                                  <CellVal campaignId={campaign._id} fieldKey="delivery" defaultVal={campaign.delivery} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                                </span>
-                              </div>
-                            </td>
-                          )}
-                          {visibleColumns.actions && (
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              <CellVal campaignId={campaign._id} fieldKey="actions" defaultVal={campaign.actions} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.results && (
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              <CellVal campaignId={campaign._id} fieldKey="results" defaultVal={campaign.results} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.costPerResult && (
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              <CellVal campaignId={campaign._id} fieldKey="costPerResult" defaultVal={campaign.costPerResult} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.budget && (
-                            <td className="px-4 py-3 text-sm text-gray-700 font-medium border border-gray-200">
-                              <CellVal campaignId={campaign._id} fieldKey="budget" defaultVal={campaign.budget} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.amountSpent && (
-                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">
-                              <CellVal campaignId={campaign._id} fieldKey="amountSpent" defaultVal={campaign.amountSpent} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.impressions && (
-                            <td className="px-4 py-3 text-sm text-gray-600 border border-gray-200">
-                              <CellVal campaignId={campaign._id} fieldKey="impressions" defaultVal={campaign.impressions} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.reach && (
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                              <CellVal campaignId={campaign._id} fieldKey="reach" defaultVal={campaign.reach} dailyDataMap={dailyDataMap} tableDate={tableDate} />
-                            </td>
-                          )}
-                          {visibleColumns.ends && (
-                            <td className="px-4 py-3 text-sm text-gray-600">{campaign.endDate}</td>
-                          )}
-
-                          {/* Custom fields */}
-                          {customFields.map(field =>
-                            visibleColumns[`custom_${field.name}`] !== false && (
-                              <td key={field._id} className="px-4 py-3 text-sm text-gray-600 border border-gray-200">
-                                {(() => {
-                                  if (tableDate && dailyDataMap?.[campaign._id]) {
-                                    const rec = dailyDataMap[campaign._id];
-                                    const v = getCF(rec.customFields, field.name);
-                                    const str = fmtCFVal(v);
-                                    if (str) return (
-                                      <span className="font-semibold text-blue-700">
-                                        {str}
-                                        {rec._aggregated && rec.days > 1 && (
-                                          <span className="ml-1 text-xs text-violet-400 font-normal">Σ{rec.days}d</span>
-                                        )}
-                                      </span>
-                                    );
-                                    return <span className="text-gray-300 italic text-xs">—</span>;
-                                  }
-                                  const v = getCF(campaign.customFields, field.name)
-                                    ?? getCF(campaign.customFieldsData, field.name);
-                                  const str = fmtCFVal(v);
-                                  return str
-                                    ? <span className="text-gray-800">{str}</span>
-                                    : <span className="text-gray-300">—</span>;
-                                })()}
-                              </td>
-                            )
-                          )}
-
-                          {/* ★ Daily Entry + Edit/Duplicate/Delete — hidden by default, shown when showRowActions */}
-                          {showRowActions ? (
-                            <>
-                              {userRole === 'admin' && (
-                                <td className="px-4 py-3 bg-amber-50/40">
+                            switch (c.key) {
+                              case 'checkbox':
+                                content = <input type="checkbox" className="rounded" />;
+                                break;
+                              case 'toggle':
+                                content = (
+                                  <button onClick={() => onToggle(campaign._id)}
+                                    className={`w-10 h-6 rounded-full transition ${campaign.active ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
+                                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition ${campaign.active ? 'right-1' : 'left-1'}`} />
+                                  </button>
+                                );
+                                break;
+                              case 'name':
+                                content = (
+                                  <div className="flex flex-col gap-0.5 min-w-0 w-full">
+                                    <Link
+                                      href={userRole === 'admin'
+                                        ? `/dashboard/campaign/${campaign._id}/insertion-orders`
+                                        : `/viewer/campaign/${campaign._id}`}
+                                      className="text-blue-600 hover:underline font-medium truncate">
+                                      {campaign.name}
+                                    </Link>
+                                    {tableDate && (
+                                      <div className="text-xs">
+                                        {hasDaily
+                                          ? <span className="text-emerald-600 font-medium">● has entry</span>
+                                          : <span className="text-gray-300">○ no entry</span>}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                                break;
+                              case 'delivery':
+                                content = (
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
+                                    <span className="text-sm text-gray-700 truncate">
+                                      <CellVal campaignId={campaign._id} fieldKey="delivery" defaultVal={campaign.delivery} dailyDataMap={dailyDataMap} tableDate={tableDate} />
+                                    </span>
+                                  </div>
+                                );
+                                break;
+                              case 'actions':
+                                content = <CellVal campaignId={campaign._id} fieldKey="actions" defaultVal={campaign.actions} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'results':
+                                content = <CellVal campaignId={campaign._id} fieldKey="results" defaultVal={campaign.results} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'costPerResult':
+                                content = <CellVal campaignId={campaign._id} fieldKey="costPerResult" defaultVal={campaign.costPerResult} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'budget':
+                                content = <CellVal campaignId={campaign._id} fieldKey="budget" defaultVal={campaign.budget} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'amountSpent':
+                                content = <CellVal campaignId={campaign._id} fieldKey="amountSpent" defaultVal={campaign.amountSpent} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'impressions':
+                                content = <CellVal campaignId={campaign._id} fieldKey="impressions" defaultVal={campaign.impressions} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'reach':
+                                content = <CellVal campaignId={campaign._id} fieldKey="reach" defaultVal={campaign.reach} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                break;
+                              case 'ends':
+                                content = campaign.endDate;
+                                break;
+                              case 'dailyEntry':
+                                content = (
                                   <button
                                     onClick={() => onOpenDailyEntry && onOpenDailyEntry(campaign)}
                                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition
@@ -543,33 +673,73 @@ export default function CampaignList({
                                     <CalendarDays size={12} />
                                     Enter Data
                                   </button>
-                                </td>
-                              )}
-                              <td className="px-4 py-3">
-                                <div className="flex gap-2">
-                                  <button onClick={() => onEdit(campaign)} className="p-1 hover:bg-gray-200 rounded" title="Edit">
-                                    <Edit size={16} className="text-gray-600" />
-                                  </button>
-                                  <button onClick={() => onDuplicate(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Duplicate">
-                                    <Copy size={16} className="text-gray-600" />
-                                  </button>
-                                  <button onClick={() => onDelete(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Delete">
-                                    <Trash2 size={16} className="text-gray-600" />
-                                  </button>
-                                </div>
+                                );
+                                break;
+                              case 'lastCol':
+                                content = showRowActions ? (
+                                  <div className="flex gap-2">
+                                    <button onClick={() => onEdit(campaign)} className="p-1 hover:bg-gray-200 rounded" title="Edit">
+                                      <Edit size={16} className="text-gray-600" />
+                                    </button>
+                                    <button onClick={() => onDuplicate(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Duplicate">
+                                      <Copy size={16} className="text-gray-600" />
+                                    </button>
+                                    <button onClick={() => onDelete(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Delete">
+                                      <Trash2 size={16} className="text-gray-600" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex justify-end w-full">
+                                    <button
+                                      onClick={() => setShowRowActions(true)}
+                                      title="Show actions"
+                                      className="p-1.5 rounded-lg border bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300 transition">
+                                      <Eye size={14} />
+                                    </button>
+                                  </div>
+                                );
+                                break;
+                              default:
+                                if (c.field) {
+                                  // custom field column
+                                  if (tableDate && dailyDataMap?.[campaign._id]) {
+                                    const rec = dailyDataMap[campaign._id];
+                                    const v = getCF(rec.customFields, c.field.name);
+                                    const str = fmtCFVal(v);
+                                    content = str ? (
+                                      <span className="font-semibold text-blue-700">
+                                        {str}
+                                        {rec._aggregated && rec.days > 1 && (
+                                          <span className="ml-1 text-xs text-violet-400 font-normal">Σ{rec.days}d</span>
+                                        )}
+                                      </span>
+                                    ) : <span className="text-gray-300 italic text-xs">—</span>;
+                                  } else {
+                                    const v = getCF(campaign.customFields, c.field.name)
+                                      ?? getCF(campaign.customFieldsData, c.field.name);
+                                    const str = fmtCFVal(v);
+                                    content = str
+                                      ? <span className="text-gray-800">{str}</span>
+                                      : <span className="text-gray-300">—</span>;
+                                  }
+                                }
+                            }
+
+                            return (
+                              <td key={c.key} className="relative border border-gray-200 p-0">
+                                <ClipCell height={rh} className="px-4">
+                                  {content}
+                                </ClipCell>
+                                {idx === 0 && (
+                                  <RowResizeHandle
+                                    rowId={campaign._id}
+                                    currentHeight={rh}
+                                    onCommit={h => setRowHeight(campaign._id, h)}
+                                  />
+                                )}
                               </td>
-                            </>
-                          ) : (
-                            /* ★ Collapsed state — just the eye button to expand */
-                            <td className="px-3 py-3 text-right">
-                              <button
-                                onClick={() => setShowRowActions(true)}
-                                title="Show actions"
-                                className="p-1.5 rounded-lg border bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300 transition">
-                                <Eye size={14} />
-                              </button>
-                            </td>
-                          )}
+                            );
+                          })}
                         </tr>
                       );
                     })

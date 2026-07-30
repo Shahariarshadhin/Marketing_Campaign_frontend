@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Save, X, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CreateCampaign({
   formData,
@@ -83,7 +84,7 @@ export default function CreateCampaign({
               {availableBrands.length === 0 ? (
                 <div className="border border-amber-200 bg-amber-50 rounded-lg px-4 py-3 text-sm text-amber-700">
                   No brands found. Please{' '}
-                  <a href="/dashboard/brands" className="underline font-medium">create a brand</a>
+                  <Link href="/dashboard/brands" className="underline font-medium">create a brand</Link>
                   {' '}first before creating a campaign.
                 </div>
               ) : (

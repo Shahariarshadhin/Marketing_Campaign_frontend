@@ -13,18 +13,18 @@ import {
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-const IO_TYPES    = ['standard','over_the_top','programmatic_guaranteed'];
-const GOAL_TYPES  = ['cpm','cpc','cpa','cpcv','viewability','none'];
-const PACING_OPTS = ['pacing','underpacing','at_risk'];
-const CURRENCIES  = ['USD','AUD','EUR','GBP','BDT','INR'];
+const IO_TYPES = ['standard', 'over_the_top', 'programmatic_guaranteed'];
+const GOAL_TYPES = ['cpm', 'cpc', 'cpa', 'cpcv', 'viewability', 'none'];
+const PACING_OPTS = ['pacing', 'underpacing', 'at_risk'];
+const CURRENCIES = ['USD', 'AUD', 'EUR', 'GBP', 'BDT', 'INR'];
 
 const EMPTY_FORM = {
-  name:'', type:'standard', status:'draft', pacing:'pacing',
-  budget:'', currency:'USD', amountSpent:'',
-  goalType:'cpm', goalValue:'', goal:'',
-  impressions:'', revenue:'', interactions:'', conversions:'', cpa:'',
-  customImprValue:'', startDate:'', endDate:'',
-  frequencyCap:'', notes:'', active:false,
+  name: '', type: 'standard', status: 'draft', pacing: 'pacing',
+  budget: '', currency: 'USD', amountSpent: '',
+  goalType: 'cpm', goalValue: '', goal: '',
+  impressions: '', revenue: '', interactions: '', conversions: '', cpa: '',
+  customImprValue: '', startDate: '', endDate: '',
+  frequencyCap: '', notes: '', active: false,
 };
 
 // ─── Sparkline bar chart (DV360 style) ───────────────────────────────────────
@@ -46,8 +46,8 @@ function Sparkline({ data, color = '#1a73e8', goalValue = null }) {
       )}
       {/* Bars */}
       {data.map((d, i) => {
-        const bh  = Math.max(2, (d.v / max) * H);
-        const x   = i * (barW + PAD);
+        const bh = Math.max(2, (d.v / max) * H);
+        const x = i * (barW + PAD);
         const isToday = i === data.length - 1;
         return (
           <rect key={i} x={x} y={H - bh} width={barW} height={bh}
@@ -79,8 +79,8 @@ function buildSparkData(orders, valueKey, days = 30) {
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const iso   = d.toISOString().split('T')[0];
-    const label = ['S','M','T','W','T','F','S'][d.getDay()];
+    const iso = d.toISOString().split('T')[0];
+    const label = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][d.getDay()];
     // Sum value for IOs whose startDate matches this day (or spread evenly as proxy)
     const v = orders
       .filter(o => {
@@ -95,7 +95,7 @@ function buildSparkData(orders, valueKey, days = 30) {
 
 // ─── DV360-style stat card with sparkline ────────────────────────────────────
 function SparkCard({ title, dateRange, value, sub, subColor, goalValue, goalLabel,
-                     sparkData, sparkColor, todayValue, todayCurrency, compact }) {
+  sparkData, sparkColor, todayValue, todayCurrency, compact }) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col min-w-0">
       {/* Header */}
@@ -197,7 +197,7 @@ function IOModal({ io, onSave, onClose, saving, campaign }) {
             <div>
               <label className={lbl}>Type</label>
               <select className={sel} value={form.type} onChange={e => set('type', e.target.value)}>
-                {IO_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>)}
+                {IO_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>)}
               </select>
             </div>
           </div>
@@ -207,14 +207,14 @@ function IOModal({ io, onSave, onClose, saving, campaign }) {
             <div>
               <label className={lbl}>Status</label>
               <select className={sel} value={form.status} onChange={e => set('status', e.target.value)}>
-                {['active','draft','paused','completed'].map(s =>
-                  <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+                {['active', 'draft', 'paused', 'completed'].map(s =>
+                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
               </select>
             </div>
             <div>
               <label className={lbl}>Pacing</label>
               <select className={sel} value={form.pacing} onChange={e => set('pacing', e.target.value)}>
-                {PACING_OPTS.map(p => <option key={p} value={p}>{p.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>)}
+                {PACING_OPTS.map(p => <option key={p} value={p}>{p.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>)}
               </select>
             </div>
           </div>
@@ -263,12 +263,12 @@ function IOModal({ io, onSave, onClose, saving, campaign }) {
             <label className={lbl}>Delivery Metrics</label>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { k:'impressions', p:'Impressions' },
-                { k:'revenue',     p:'Revenue ($)' },
-                { k:'interactions',p:'Interactions' },
-                { k:'conversions', p:'Conversions' },
-                { k:'cpa',         p:'CPA ($)' },
-                { k:'customImprValue', p:'Custom Impr. Value' },
+                { k: 'impressions', p: 'Impressions' },
+                { k: 'revenue', p: 'Revenue ($)' },
+                { k: 'interactions', p: 'Interactions' },
+                { k: 'conversions', p: 'Conversions' },
+                { k: 'cpa', p: 'CPA ($)' },
+                { k: 'customImprValue', p: 'Custom Impr. Value' },
               ].map(f => (
                 <div key={f.k}>
                   <p className="text-xs text-gray-400 mb-1">{f.p}</p>
@@ -353,22 +353,195 @@ function RowMenu({ io, onEdit, onDelete, onToggle }) {
   );
 }
 
+
+// ─── Column resize handle (DOM-direct, smooth) ─────────────────────────────
+function ColResizeHandle({ colKey, currentWidth, onCommit, min = 4 }) {
+  const onMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startWidth = currentWidth;
+    let latestWidth = startWidth;
+    let rafId = null;
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const colEl = document.querySelector(`col[data-col-key="${colKey}"]`);
+    const tableEl = colEl ? colEl.closest('table') : null;
+
+    const applyWidth = () => {
+      const delta = latestWidth - startWidth;
+      if (colEl) colEl.style.width = `${latestWidth}px`;
+      if (tableEl) {
+        const currentTableWidth = parseFloat(tableEl.dataset.baseWidth || tableEl.style.width || tableEl.offsetWidth);
+        // recompute using base width captured at drag start
+      }
+      rafId = null;
+    };
+
+    // capture base table width once, at drag start
+    if (tableEl && !tableEl.dataset.dragBaseWidth) {
+      tableEl.dataset.dragBaseWidth = tableEl.offsetWidth;
+    }
+    const baseTableWidth = tableEl ? parseFloat(tableEl.dataset.dragBaseWidth || tableEl.offsetWidth) : 0;
+
+    const onMove = (ev) => {
+      const delta = ev.clientX - startX;
+      latestWidth = Math.max(min, startWidth + delta);
+      if (rafId == null) {
+        rafId = requestAnimationFrame(() => {
+          if (colEl) colEl.style.width = `${latestWidth}px`;
+          if (tableEl) tableEl.style.width = `${baseTableWidth + (latestWidth - startWidth)}px`;
+          rafId = null;
+        });
+      }
+    };
+
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (tableEl) delete tableEl.dataset.dragBaseWidth;
+      onCommit(latestWidth);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className="absolute top-0 right-0 translate-x-1/2 w-1.5 h-full cursor-col-resize z-20 hover:bg-blue-400/60 active:bg-blue-500/70"
+    />
+  );
+}
+
+// ─── Row resize handle (DOM-direct, smooth) ────────────────────────────────
+function RowResizeHandle({ rowId, currentHeight, onCommit, min = 32 }) {
+  const onMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startY = e.clientY;
+    const startHeight = currentHeight;
+    let latestHeight = startHeight;
+    let rafId = null;
+
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+
+    const rowEl = document.querySelector(`tr[data-row-id="${rowId}"]`);
+
+    const applyHeight = () => {
+      if (rowEl) rowEl.style.height = `${latestHeight}px`;
+      rafId = null;
+    };
+
+    const onMove = (ev) => {
+      const delta = ev.clientY - startY;
+      latestHeight = Math.max(min, startHeight + delta);
+      if (rafId == null) rafId = requestAnimationFrame(applyHeight);
+    };
+
+    const onUp = () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      if (rafId) cancelAnimationFrame(rafId);
+      onCommit(latestHeight);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      className="absolute left-0 bottom-0 translate-y-1/2 w-full h-1.5 cursor-row-resize z-20 hover:bg-blue-400/60 active:bg-blue-500/70"
+    />
+  );
+}
+
+function ClipCell({ height, className = '', children }) {
+  return (
+    <div
+      style={{ height, overflow: 'hidden' }}
+      className={`flex items-center min-w-0 ${className}`}
+    >
+      <div className="min-w-0 w-full truncate">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Column config (order must match the leaf <th>/<td> order) ────────────
+const COLUMNS = [
+  { key: 'checkbox', width: 36, resizable: false },
+  { key: 'alert', width: 28 },
+  { key: 'statusDot', width: 28 },
+  { key: 'name', width: 240 },
+  { key: 'id', width: 100 },
+  { key: 'type', width: 140 },
+  { key: 'budget', width: 110 },
+  { key: 'goal', width: 140 },
+  { key: 'goalType', width: 100 },
+  { key: 'impr', width: 110 },
+  { key: 'revenue', width: 100 },
+  { key: 'interactions', width: 110 },
+  { key: 'convs', width: 90 },
+  { key: 'cpa', width: 90 },
+  { key: 'customImprValue', width: 150 },
+  { key: 'cost', width: 90 },
+  { key: 'actions', width: 48, resizable: false, adminOnly: true },
+];
+
+
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function InsertionOrdersPage() {
   const { id: campaignId } = useParams();
-  const router   = useRouter();
+  const router = useRouter();
   const { user, loading } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const authFetch = useAuthFetch();
   const redirected = useRef(false);
 
   const [campaign, setCampaign] = useState(null);
-  const [orders, setOrders]     = useState([]);
+  const [orders, setOrders] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editIO, setEditIO]     = useState(null);
-  const [saving, setSaving]     = useState(false);
-  const [search, setSearch]     = useState('');
-  const [toast, setToast]       = useState(null);
+  const [editIO, setEditIO] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const [colWidths, setColWidths] = useState(() =>
+    Object.fromEntries(COLUMNS.map(c => [c.key, c.width]))
+  );
+  const [rowHeights, setRowHeights] = useState({});
+  const getRowHeight = (id) => rowHeights[id] || 52;
+  const setColWidth = (key, w) => setColWidths(prev => ({ ...prev, [key]: w }));
+  const setRowHeight = (id, h) => setRowHeights(prev => ({ ...prev, [id]: h }));
+
+  const visibleColumns = useMemo(
+    () => COLUMNS.filter(c => !c.adminOnly || isAdmin),
+    [isAdmin]
+  );
+
+  const tableRef = useRef(null);
+
+  const totalTableWidth = useMemo(
+    () => visibleColumns.reduce((sum, c) => sum + (colWidths[c.key] || c.width), 0),
+    [visibleColumns, colWidths]
+  );
 
   useEffect(() => {
     if (loading || redirected.current) return;
@@ -380,6 +553,8 @@ export default function InsertionOrdersPage() {
     loadAll();
   }, [user, campaignId]);
 
+
+
   const loadAll = async () => {
     setFetching(true);
     try {
@@ -387,7 +562,7 @@ export default function InsertionOrdersPage() {
         authFetch(`${API}/campaigns/${campaignId}`).then(r => r.json()),
         authFetch(`${API}/campaigns/${campaignId}/insertion-orders`).then(r => r.json()),
       ]);
-      if (cRes.success)  setCampaign(cRes.data);
+      if (cRes.success) setCampaign(cRes.data);
       if (ioRes.success) setOrders(ioRes.data);
     } finally { setFetching(false); }
   };
@@ -400,10 +575,10 @@ export default function InsertionOrdersPage() {
     if (!form.name.trim()) { showToast('IO name is required', 'error'); return; }
     setSaving(true);
     try {
-      const url    = editIO ? `${API}/campaigns/${campaignId}/insertion-orders/${editIO._id}` : `${API}/campaigns/${campaignId}/insertion-orders`;
+      const url = editIO ? `${API}/campaigns/${campaignId}/insertion-orders/${editIO._id}` : `${API}/campaigns/${campaignId}/insertion-orders`;
       const method = editIO ? 'PUT' : 'POST';
-      const res    = await authFetch(url, { method, body: JSON.stringify(form) });
-      const data   = await res.json();
+      const res = await authFetch(url, { method, body: JSON.stringify(form) });
+      const data = await res.json();
       if (data.success) {
         showToast(editIO ? 'IO updated!' : 'IO created!');
         setShowModal(false); setEditIO(null);
@@ -415,52 +590,52 @@ export default function InsertionOrdersPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this insertion order?')) return;
-    const res  = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${id}`, { method: 'DELETE' });
+    const res = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) { setOrders(o => o.filter(x => x._id !== id)); showToast('Deleted'); }
   };
 
   const handleToggle = async (id) => {
-    const res  = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${id}/toggle`, { method: 'PATCH' });
+    const res = await authFetch(`${API}/campaigns/${campaignId}/insertion-orders/${id}/toggle`, { method: 'PATCH' });
     const data = await res.json();
     if (data.success) setOrders(o => o.map(x => x._id === id ? data.data : x));
   };
 
   const filtered = useMemo(() =>
     orders.filter(o => o.name.toLowerCase().includes(search.toLowerCase())),
-  [orders, search]);
+    [orders, search]);
 
-  const isAdmin = user?.role === 'admin';
-  const brand   = campaign?.motherBrand;
+  // const isAdmin = user?.role === 'admin';
+  const brand = campaign?.motherBrand;
 
   // Aggregate stats
-  const totalBudget    = filtered.reduce((s, o) => s + Number(o.budget || 0), 0);
-  const totalSpent     = filtered.reduce((s, o) => s + Number(o.amountSpent || 0), 0);
-  const totalImpr      = filtered.reduce((s, o) => s + Number(o.impressions || 0), 0);
-  const activeCount    = filtered.filter(o => o.active).length;
-  const pacingCount    = filtered.filter(o => o.pacing === 'pacing' && o.active).length;
-  const underCount     = filtered.filter(o => o.pacing === 'underpacing' && o.active).length;
-  const pacingPct      = activeCount > 0 ? Math.round((pacingCount / activeCount) * 100) : 100;
-  const underPct       = activeCount > 0 ? Math.round((underCount / activeCount) * 100) : 0;
+  const totalBudget = filtered.reduce((s, o) => s + Number(o.budget || 0), 0);
+  const totalSpent = filtered.reduce((s, o) => s + Number(o.amountSpent || 0), 0);
+  const totalImpr = filtered.reduce((s, o) => s + Number(o.impressions || 0), 0);
+  const activeCount = filtered.filter(o => o.active).length;
+  const pacingCount = filtered.filter(o => o.pacing === 'pacing' && o.active).length;
+  const underCount = filtered.filter(o => o.pacing === 'underpacing' && o.active).length;
+  const pacingPct = activeCount > 0 ? Math.round((pacingCount / activeCount) * 100) : 100;
+  const underPct = activeCount > 0 ? Math.round((underCount / activeCount) * 100) : 0;
 
   // Sparkline datasets (30-day window)
-  const sparkCost   = useMemo(() => buildSparkData(filtered, 'amountSpent', 30), [filtered]);
-  const sparkBudget = useMemo(() => buildSparkData(filtered, 'budget',      30), [filtered]);
-  const sparkImpr   = useMemo(() => buildSparkData(filtered, 'impressions', 30), [filtered]);
+  const sparkCost = useMemo(() => buildSparkData(filtered, 'amountSpent', 30), [filtered]);
+  const sparkBudget = useMemo(() => buildSparkData(filtered, 'budget', 30), [filtered]);
+  const sparkImpr = useMemo(() => buildSparkData(filtered, 'impressions', 30), [filtered]);
   const sparkActive = useMemo(() => buildSparkData(
     filtered.filter(o => o.active), 'impressions', 30
   ), [filtered]);
 
   // Date range label
   const dateRangeLabel = useMemo(() => {
-    const end   = new Date();
+    const end = new Date();
     const start = new Date(); start.setDate(start.getDate() - 29);
-    const fmt   = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     return `${fmt(start)} – ${fmt(end)}`;
   }, []);
 
   const fmtNum = (n) => Number(n || 0).toLocaleString();
-  const fmtCur = (n, cur = 'USD') => `${cur === 'USD' ? '$' : cur}${Number(n||0).toFixed(2)}`;
+  const fmtCur = (n, cur = 'USD') => `${cur === 'USD' ? '$' : cur}${Number(n || 0).toFixed(2)}`;
 
   if (loading || fetching) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -469,6 +644,8 @@ export default function InsertionOrdersPage() {
   );
 
   const accentColor = (typeof brand === 'object' ? brand?.color : null) || '#1a73e8';
+
+
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -636,61 +813,113 @@ export default function InsertionOrdersPage() {
           )}
         </div>
 
-        {/* ── Table — DV360 style ──────────────────────────────────────────── */}
-        <div className="bg-white border border-gray-200  shadow-sm overflow-hidden">
+        {/* ── Table — DV360 style, resizable ──────────────────────────────────── */}
+        <div className="bg-white border border-gray-300 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-gray-100">
+            <table
+              ref={tableRef}
+              className="border-collapse text-sm"
+              style={{ tableLayout: 'fixed', width: totalTableWidth }}
+            >
+              <colgroup>
+                {visibleColumns.map(c => (
+                  <col key={c.key} data-col-key={c.key} style={{ width: colWidths[c.key] }} />
+                ))}
+              </colgroup>
+
+              <thead>
                 {/* Grouped headers */}
                 <tr className="bg-gray-50/60">
-                  <th colSpan={5} className="px-4 py-2 text-left" />
-                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border-l border-gray-100 tracking-wide">
+                  <th colSpan={5} className="px-4 py-2 text-left border border-gray-200" />
+                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border border-gray-200 tracking-wide">
                     Settings
                   </th>
-                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border-l border-gray-100 tracking-wide">
+                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border border-gray-200 tracking-wide">
                     Goal
                   </th>
-                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border-l border-gray-100 tracking-wide">
+                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border border-gray-200 tracking-wide">
                     Delivery
                   </th>
-                  <th colSpan={3} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border-l border-gray-100 tracking-wide">
+                  <th colSpan={3} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border border-gray-200 tracking-wide">
                     Interactions
                   </th>
-                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border-l border-gray-100 tracking-wide">
+                  <th colSpan={2} className="px-4 py-2 text-center text-xs font-bold text-gray-500 border border-gray-200 tracking-wide">
                     Custom Bidding
                   </th>
-                  {isAdmin && <th className="px-4 py-2" />}
+                  {isAdmin && <th className="px-4 py-2 border border-gray-200" />}
                 </tr>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-3 py-2.5 w-8">
+
+                {/* Leaf headers — each resizable */}
+                <tr className="bg-gray-50">
+                  <th className="relative px-3 py-2.5 border border-gray-200 overflow-hidden">
                     <input type="checkbox" className="rounded" />
                   </th>
-                  <th className="px-2 py-2.5 w-8" />
-                  <th className="px-2 py-2.5 w-8" />
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
-                    Insertion orders
-                    <span className="ml-1 text-gray-300">↑</span>
+                  <th className="relative px-2 py-2.5 border border-gray-200 overflow-hidden">
+                    <ColResizeHandle colKey="alert" currentWidth={colWidths.alert} onCommit={w => setColWidth('alert', w)} min={4} />
                   </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Id</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border-l border-gray-100">Type</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Budget</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border-l border-gray-100">Goal</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Goal Type</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border-l border-gray-100">Impr.</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Revenue</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border-l border-gray-100">Interactions</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Convs.</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">CPA</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border-l border-gray-100">Custom impr. value</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">/ cost</th>
-                  {isAdmin && <th className="px-4 py-2.5 w-10" />}
+                  <th className="relative px-2 py-2.5 border border-gray-200 overflow-hidden">
+                    <ColResizeHandle colKey="statusDot" currentWidth={colWidths.statusDot} onCommit={w => setColWidth('statusDot', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Insertion orders <span className="ml-1 text-gray-300">↑</span>
+                    <ColResizeHandle colKey="name" currentWidth={colWidths.name} onCommit={w => setColWidth('name', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Id
+                    <ColResizeHandle colKey="id" currentWidth={colWidths.id} onCommit={w => setColWidth('id', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Type
+                    <ColResizeHandle colKey="type" currentWidth={colWidths.type} onCommit={w => setColWidth('type', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Budget
+                    <ColResizeHandle colKey="budget" currentWidth={colWidths.budget} onCommit={w => setColWidth('budget', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Goal
+                    <ColResizeHandle colKey="goal" currentWidth={colWidths.goal} onCommit={w => setColWidth('goal', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Goal Type
+                    <ColResizeHandle colKey="goalType" currentWidth={colWidths.goalType} onCommit={w => setColWidth('goalType', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Impr.
+                    <ColResizeHandle colKey="impr" currentWidth={colWidths.impr} onCommit={w => setColWidth('impr', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Revenue
+                    <ColResizeHandle colKey="revenue" currentWidth={colWidths.revenue} onCommit={w => setColWidth('revenue', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Interactions
+                    <ColResizeHandle colKey="interactions" currentWidth={colWidths.interactions} onCommit={w => setColWidth('interactions', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Convs.
+                    <ColResizeHandle colKey="convs" currentWidth={colWidths.convs} onCommit={w => setColWidth('convs', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    CPA
+                    <ColResizeHandle colKey="cpa" currentWidth={colWidths.cpa} onCommit={w => setColWidth('cpa', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    Custom impr. value
+                    <ColResizeHandle colKey="customImprValue" currentWidth={colWidths.customImprValue} onCommit={w => setColWidth('customImprValue', w)} min={4} />
+                  </th>
+                  <th className="relative px-4 py-2.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wide border border-gray-200 overflow-hidden whitespace-nowrap">
+                    / cost
+                    <ColResizeHandle colKey="cost" currentWidth={colWidths.cost} onCommit={w => setColWidth('cost', w)} min={4} />
+                  </th>
+                  {isAdmin && <th className="px-4 py-2.5 border border-gray-200" />}
                 </tr>
               </thead>
 
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan="17" className="py-20 text-center">
+                    <td colSpan={visibleColumns.length} className="py-20 text-center border border-gray-200">
                       <div className="flex flex-col items-center gap-3">
                         <BarChart3 size={40} className="text-gray-200" />
                         <p className="text-gray-400 font-semibold">
@@ -708,88 +937,120 @@ export default function InsertionOrdersPage() {
                 ) : (
                   <>
                     {filtered.map(io => (
-                      <tr key={io._id} className="group border-b border-gray-50 last:border-0 hover:bg-blue-50/20 transition-colors">
-                        <td className="px-3 py-3"><input type="checkbox" className="rounded" /></td>
-                        {/* Alert icon */}
-                        <td className="px-2 py-3 text-gray-300">△</td>
-                        {/* Status dot */}
-                        <td className="px-2 py-3">
-                          <span className={`w-2 h-2 rounded-full inline-block ${io.active ? 'bg-blue-500' : 'bg-gray-300'}`} />
+                      <tr
+                        key={io._id}
+                        data-row-id={io._id}
+                        className="group hover:bg-blue-50/20 transition-colors"
+                        style={{ height: getRowHeight(io._id) }}
+                      >
+                        <td className="relative border border-gray-200 p-0">
+                          <ClipCell height={getRowHeight(io._id)} className="px-3">
+                            <input type="checkbox" className="rounded" />
+                          </ClipCell>
+                          <RowResizeHandle
+                            rowId={io._id}
+                            currentHeight={getRowHeight(io._id)}
+                            onCommit={h => setRowHeight(io._id, h)}
+                            min={4}
+                          />
                         </td>
-                        {/* Name */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/dashboard/campaign/${campaignId}/insertion-orders/${io._id}`}
-                              className="text-blue-600 hover:underline font-semibold cursor-pointer text-sm">
-                              {io.name}
-                            </Link>
-                          </div>
-                          <PacingBadge pacing={io.pacing} active={io.active} status={io.status} />
+                        <td className="border border-gray-200 p-0 text-gray-300">
+                          <ClipCell height={getRowHeight(io._id)} className="px-2">△</ClipCell>
                         </td>
-                        {/* ID */}
-                        <td className="px-4 py-3 text-sm text-gray-500 font-mono">{io.ioId}</td>
-                        {/* Type */}
-                        <td className="px-4 py-3 text-sm text-gray-600 border-l border-gray-50">
-                          {io.type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+                        <td className="border border-gray-200 p-0">
+                          <ClipCell height={getRowHeight(io._id)} className="px-2">
+                            <span className={`w-2 h-2 rounded-full inline-block ${io.active ? 'bg-blue-500' : 'bg-gray-300'}`} />
+                          </ClipCell>
                         </td>
-                        {/* Budget */}
-                        <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                          {io.currency === 'USD' ? '$' : io.currency}{Number(io.budget||0).toFixed(2)}
+                        <td className="border border-gray-200 p-0">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4 items-start">
+                            <div className="flex flex-col gap-0.5 min-w-0 w-full">
+                              <Link
+                                href={`/dashboard/campaign/${campaignId}/insertion-orders/${io._id}`}
+                                className="text-blue-600 hover:underline font-semibold cursor-pointer text-sm truncate">
+                                {io.name}
+                              </Link>
+                              <PacingBadge pacing={io.pacing} active={io.active} status={io.status} />
+                            </div>
+                          </ClipCell>
                         </td>
-                        {/* Goal */}
-                        <td className="px-4 py-3 text-sm text-gray-600 border-l border-gray-50">
-                          {io.goalValue ? `${io.currency === 'USD' ? '$' : io.currency}${Number(io.goalValue).toFixed(2)} ${io.goalType?.toUpperCase()}` : '—'}
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500 font-mono">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4 truncate">{io.ioId}</ClipCell>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{io.goalType?.toUpperCase()}</td>
-                        {/* Delivery */}
-                        <td className="px-4 py-3 text-sm text-gray-700 border-l border-gray-50">{fmtNum(io.impressions)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">
-                          {io.currency === 'USD' ? '$' : io.currency}{Number(io.revenue||0).toFixed(2)}
+                        <td className="border border-gray-200 p-0 text-sm text-gray-600">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          </ClipCell>
                         </td>
-                        {/* Interactions */}
-                        <td className="px-4 py-3 text-sm text-gray-700 border-l border-gray-50">{fmtNum(io.interactions)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{io.conversions || '·'}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {io.cpa ? `$${Number(io.cpa).toFixed(2)}` : '·'}
+                        <td className="border border-gray-200 p-0 text-sm font-medium text-gray-800">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.currency === 'USD' ? '$' : io.currency}{Number(io.budget || 0).toFixed(2)}
+                          </ClipCell>
                         </td>
-                        {/* Custom bidding */}
-                        <td className="px-4 py-3 text-sm text-gray-500 border-l border-gray-50">
-                          {io.customImprValue || '·'}
+                        <td className="border border-gray-200 p-0 text-sm text-gray-600">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.goalValue ? `${io.currency === 'USD' ? '$' : io.currency}${Number(io.goalValue).toFixed(2)} ${io.goalType?.toUpperCase()}` : '—'}
+                          </ClipCell>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {io.customImprValue && io.amountSpent
-                            ? `$${(Number(io.customImprValue) / Math.max(Number(io.amountSpent),1)).toFixed(2)}`
-                            : '·'}
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">{io.goalType?.toUpperCase()}</ClipCell>
                         </td>
-                        {/* Actions */}
+                        <td className="border border-gray-200 p-0 text-sm text-gray-700">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">{fmtNum(io.impressions)}</ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-700">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.currency === 'USD' ? '$' : io.currency}{Number(io.revenue || 0).toFixed(2)}
+                          </ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-700">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">{fmtNum(io.interactions)}</ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">{io.conversions || '·'}</ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.cpa ? `$${Number(io.cpa).toFixed(2)}` : '·'}
+                          </ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">{io.customImprValue || '·'}</ClipCell>
+                        </td>
+                        <td className="border border-gray-200 p-0 text-sm text-gray-500">
+                          <ClipCell height={getRowHeight(io._id)} className="px-4">
+                            {io.customImprValue && io.amountSpent
+                              ? `$${(Number(io.customImprValue) / Math.max(Number(io.amountSpent), 1)).toFixed(2)}`
+                              : '·'}
+                          </ClipCell>
+                        </td>
                         {isAdmin && (
-                          <td className="px-4 py-3 opacity-0 group-hover:opacity-100 transition">
-                            <RowMenu io={io}
-                              onEdit={() => { setEditIO(io); setShowModal(true); }}
-                              onDelete={() => handleDelete(io._id)}
-                              onToggle={() => handleToggle(io._id)} />
+                          <td className="border border-gray-200 p-0 opacity-0 group-hover:opacity-100 transition">
+                            <ClipCell height={getRowHeight(io._id)} className="px-4">
+                              <RowMenu io={io}
+                                onEdit={() => { setEditIO(io); setShowModal(true); }}
+                                onDelete={() => handleDelete(io._id)}
+                                onToggle={() => handleToggle(io._id)} />
+                            </ClipCell>
                           </td>
                         )}
                       </tr>
                     ))}
 
                     {/* Totals row */}
-                    <tr className="bg-gray-50/70 border-t-2 border-gray-200 font-semibold text-sm">
-                      <td colSpan={4} className="px-4 py-3 text-gray-600 text-xs font-bold">Total: All</td>
-                      <td className="px-4 py-3" />
-                      <td className="px-4 py-3 border-l border-gray-100" />
-                      <td className="px-4 py-3 text-gray-800">${totalBudget.toFixed(2)}</td>
-                      <td className="px-4 py-3 border-l border-gray-100 text-gray-500">·</td>
-                      <td className="px-4 py-3 text-gray-500">·</td>
-                      <td className="px-4 py-3 border-l border-gray-100 text-gray-800">{fmtNum(totalImpr)}</td>
-                      <td className="px-4 py-3 text-gray-500">·</td>
-                      <td className="px-4 py-3 border-l border-gray-100 text-gray-500">·</td>
-                      <td className="px-4 py-3 text-gray-500">·</td>
-                      <td className="px-4 py-3 text-gray-500">·</td>
-                      <td className="px-4 py-3 border-l border-gray-100 text-gray-500">·</td>
-                      <td className="px-4 py-3 text-gray-500">·</td>
-                      {isAdmin && <td />}
+                    <tr className="bg-gray-50/70 font-semibold text-sm">
+                      <td colSpan={5} className="px-4 py-3 text-gray-600 text-xs font-bold border border-gray-200">Total: All</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-800">${totalBudget.toFixed(2)}</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-800">{fmtNum(totalImpr)}</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      <td className="px-4 py-3 border border-gray-200 text-gray-500">·</td>
+                      {isAdmin && <td className="border border-gray-200" />}
                     </tr>
                   </>
                 )}
