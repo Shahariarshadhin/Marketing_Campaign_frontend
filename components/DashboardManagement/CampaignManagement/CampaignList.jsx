@@ -1,7 +1,7 @@
 
 "use client";
-import { useState, useMemo, useRef } from 'react';
-import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown, GripVertical } from 'lucide-react';
 import Link from 'next/link';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -28,24 +28,45 @@ function fmtCFVal(v) {
 }
 
 // ─── DV360-style filter bar ────────────────────────────────────────────────────
-function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, onClear, campaigns }) {
+function FilterBar({ statusFilter, onStatusChange, filters, onAddFilter, onRemoveFilter, onClearAll }) {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [inputValue, setInputValue] = useState('');
 
   const STATUS_OPTIONS = ['All', 'Active', 'Paused', 'Draft', 'Scheduled', 'Completed'];
 
+  const commitFilter = () => {
+    const text = inputValue.trim();
+    if (!text) return;
+    onAddFilter(text);
+    setInputValue('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitFilter();
+    }
+  };
+
+  const hasAnyFilter = filters.length > 0 || statusFilter !== 'All';
+
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap ">
+    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap">
       {/* DV360 funnel icon with notification dot */}
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         <div className="w-8 h-8 flex items-center justify-center text-blue-600">
           <Filter size={17} strokeWidth={2} />
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white text-white flex items-center justify-center" style={{ fontSize: '7px' }}>1</span>
+          {hasAnyFilter && (
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white text-white flex items-center justify-center" style={{ fontSize: '7px' }}>
+              {filters.length + (statusFilter !== 'All' ? 1 : 0)}
+            </span>
+          )}
         </div>
       </div>
 
       {/* Status chip */}
-      <div className="relative flex-shrink-0">
-        <div className="flex items-center gap-1 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+      <div className="relative shrink-0">
+        <div className="flex items-center gap-1 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black">
           <span>Status: </span>
           <button
             onClick={() => setShowStatusMenu(v => !v)}
@@ -59,7 +80,6 @@ function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, o
           </button>
         </div>
 
-        {/* Status dropdown */}
         {showStatusMenu && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowStatusMenu(false)} />
@@ -67,7 +87,7 @@ function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, o
               {STATUS_OPTIONS.map(s => (
                 <button key={s} onClick={() => { onStatusChange(s); setShowStatusMenu(false); }}
                   className={`w-full text-left px-4 py-2 text-sm transition
-                    ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}>
+                    ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-black hover:bg-gray-50'}`}>
                   {s}
                 </button>
               ))}
@@ -76,21 +96,36 @@ function FilterBar({ statusFilter, onStatusChange, searchText, onSearchChange, o
         )}
       </div>
 
-      {/* Search input — grows to fill */}
+      {/* ── Active search filter chips ─────────────────────────────────── */}
+      {filters.map(f => (
+        <div key={f.id}
+          className="flex items-center gap-1.5 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black shrink-0">
+          <span className="text-gray-600">Campaign name contains</span>
+          <span className="font-semibold">{f.text}</span>
+          <button onClick={() => onRemoveFilter(f.id)}
+            className="ml-1 hover:text-red-500 transition text-gray-400">
+            <X size={12} />
+          </button>
+        </div>
+      ))}
+
+      {/* Search input — grows to fill, commits a new chip on Enter */}
       <div className="flex-1 min-w-[200px] relative">
         <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
-          value={searchText}
-          onChange={e => onSearchChange(e.target.value)}
+          value={inputValue}
+          onChange={e => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={commitFilter}
           placeholder="Enter a search term or select filters"
-          className="w-full pl-8 pr-3 py-1.5 text-sm text-gray-700 bg-transparent border-0 focus:outline-none placeholder-gray-400"
+          className="w-full pl-8 pr-3 py-1.5 text-sm text-black bg-transparent border-0 focus:outline-none placeholder-gray-400"
         />
       </div>
 
       {/* Clear / close */}
-      {(searchText || statusFilter !== 'All') && (
-        <button onClick={onClear}
-          className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition">
+      {hasAnyFilter && (
+        <button onClick={onClearAll}
+          className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition">
           <X size={15} />
         </button>
       )}
@@ -152,13 +187,13 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-400">From</label>
           <input type="date" value={tableDate} onChange={e => onTableDateChange(e.target.value)}
-            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </div>
         <span className="text-gray-300 text-sm">→</span>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-400">To</label>
           <input type="date" value={tableEndDate} min={tableDate} onChange={e => onTableEndDateChange(e.target.value)}
-            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </div>
         <div className={`ml-2 flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full
           ${isSingleDay ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-violet-50 text-violet-700 border border-violet-200'}`}>
@@ -174,11 +209,11 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
 function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate }) {
   if (!tableDate || !dailyDataMap) return <>{defaultVal || '—'}</>;
   const rec = dailyDataMap[campaignId];
-  if (!rec) return <span className="text-gray-300 italic text-xs">—</span>;
+  if (!rec) return <span className="text-black italic text-xs">—</span>;
   const val = rec[fieldKey];
-  if (!val || val === '—') return <span className="text-gray-300 italic text-xs">—</span>;
+  if (!val || val === '—') return <span className="text-black italic text-xs">—</span>;
   return (
-    <span className="font-semibold text-blue-700">
+    <span className="font-normal text-black">
       {val}
       {rec._aggregated && rec.days > 1 && (
         <span className="ml-1 text-xs text-violet-400 font-normal">Σ{rec.days}d</span>
@@ -305,6 +340,11 @@ function ClipCell({ height, className = '', children }) {
   );
 }
 
+const BUILTIN_ORDERABLE = [
+  'delivery', 'actions', 'results', 'costPerResult',
+  'budget', 'amountSpent', 'impressions', 'reach', 'ends',
+];
+
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function CampaignList({
   campaigns,
@@ -335,8 +375,26 @@ export default function CampaignList({
   // ★ Controls visibility of Enter Data + action buttons columns
   const [showRowActions, setShowRowActions] = useState(false);
   // ★ DV360-style filter bar state
+  // ★ DV360-style filter bar state
   const [statusFilter, setStatusFilter] = useState('Active');
-  const [searchText, setSearchText] = useState('');
+  const [filters, setFilters] = useState([]); // [{ id, text }]
+
+  const addFilter = useCallback((text) => {
+    setFilters(prev => {
+      // avoid duplicate chips for the same text (case-insensitive)
+      if (prev.some(f => f.text.toLowerCase() === text.toLowerCase())) return prev;
+      return [...prev, { id: `${Date.now()}-${Math.random()}`, text }];
+    });
+  }, []);
+
+  const removeFilter = useCallback((id) => {
+    setFilters(prev => prev.filter(f => f.id !== id));
+  }, []);
+
+  const clearAllFilters = useCallback(() => {
+    setStatusFilter('All');
+    setFilters([]);
+  }, []);
 
   const tableRef = useRef(null);
   const [colWidths, setColWidths] = useState({});
@@ -345,6 +403,20 @@ export default function CampaignList({
   const setColWidth = (key, w) => setColWidths(prev => ({ ...prev, [key]: w }));
   const getRowHeight = (id) => rowHeights[id] ?? 56;
   const setRowHeight = (id, h) => setRowHeights(prev => ({ ...prev, [id]: h }));
+
+  // ─── Column ordering (drag & drop) ─────────────────────────────────────────
+
+  const ORDER_STORAGE_KEY = 'campaignTable_columnOrder';
+
+  const [columnOrder, setColumnOrder] = useState(() => {
+    if (typeof window === 'undefined') return BUILTIN_ORDERABLE;
+    try {
+      const saved = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || 'null');
+      return Array.isArray(saved) && saved.length ? saved : BUILTIN_ORDERABLE;
+    } catch { return BUILTIN_ORDERABLE; }
+  });
+  const [draggedKey, setDraggedKey] = useState(null);
+  const [dragOverKey, setDragOverKey] = useState(null);
 
   // ★ Build the live column list based on visibleColumns / customFields / showRowActions
   const customFieldDefs = useMemo(() =>
@@ -356,40 +428,83 @@ export default function CampaignList({
 
   const columnDefs = useMemo(() => {
     const defs = [];
-    if (visibleColumns.checkbox) defs.push({ key: 'checkbox', label: '', width: 44, resizable: false });
-    if (visibleColumns.toggle) defs.push({ key: 'toggle', label: 'On/Off', width: 90 });
-    defs.push({ key: 'name', label: 'Campaign', width: 220 }); // always visible
-    if (visibleColumns.delivery) defs.push({ key: 'delivery', label: 'Delivery', width: 140 });
-    if (visibleColumns.actions) defs.push({ key: 'actions', label: 'Actions', width: 110 });
-    if (visibleColumns.results) defs.push({ key: 'results', label: 'Results', width: 110 });
-    if (visibleColumns.costPerResult) defs.push({ key: 'costPerResult', label: 'Cost per Result', width: 130 });
-    if (visibleColumns.budget) defs.push({ key: 'budget', label: 'Budget', width: 120 });
-    if (visibleColumns.amountSpent) defs.push({ key: 'amountSpent', label: 'Amount Spent', width: 130 });
-    if (visibleColumns.impressions) defs.push({ key: 'impressions', label: 'Impressions', width: 120 });
-    if (visibleColumns.reach) defs.push({ key: 'reach', label: 'Reach', width: 110 });
-    if (visibleColumns.ends) defs.push({ key: 'ends', label: 'Ends', width: 110 });
-    defs.push(...customFieldDefs);
-    if (showRowActions && userRole === 'admin') defs.push({ key: 'dailyEntry', label: 'Daily Entry', width: 140 });
-    defs.push({ key: 'lastCol', label: '', width: showRowActions ? 110 : 50, resizable: false });
+    if (visibleColumns.checkbox) defs.push({ key: 'checkbox', label: '', width: 44, resizable: false, fixed: true });
+    if (visibleColumns.toggle) defs.push({ key: 'toggle', label: 'On/Off', width: 90, fixed: true });
+    defs.push({ key: 'name', label: 'Campaign', width: 220, fixed: true });
+
+    const orderableMap = {};
+    if (visibleColumns.delivery) orderableMap.delivery = { key: 'delivery', label: 'Delivery', width: 140 };
+    if (visibleColumns.actions) orderableMap.actions = { key: 'actions', label: 'Actions', width: 110 };
+    if (visibleColumns.results) orderableMap.results = { key: 'results', label: 'Results', width: 110 };
+    if (visibleColumns.costPerResult) orderableMap.costPerResult = { key: 'costPerResult', label: 'Cost per Result', width: 130 };
+    if (visibleColumns.budget) orderableMap.budget = { key: 'budget', label: 'Budget', width: 120 };
+    if (visibleColumns.amountSpent) orderableMap.amountSpent = { key: 'amountSpent', label: 'Amount Spent', width: 130 };
+    if (visibleColumns.impressions) orderableMap.impressions = { key: 'impressions', label: 'Impressions', width: 120 };
+    if (visibleColumns.reach) orderableMap.reach = { key: 'reach', label: 'Reach', width: 110 };
+    if (visibleColumns.ends) orderableMap.ends = { key: 'ends', label: 'Ends', width: 110 };
+    customFieldDefs.forEach(d => { orderableMap[d.key] = d; });
+
+    const effectiveOrder = [
+      ...columnOrder.filter(k => orderableMap[k]),
+      ...Object.keys(orderableMap).filter(k => !columnOrder.includes(k)),
+    ];
+
+    effectiveOrder.forEach(key => {
+      defs.push({ ...orderableMap[key], orderable: true });
+    });
+
+    if (showRowActions && userRole === 'admin') defs.push({ key: 'dailyEntry', label: 'Daily Entry', width: 140, fixed: true });
+    defs.push({ key: 'lastCol', label: '', width: showRowActions ? 110 : 50, resizable: false, fixed: true });
     return defs;
-  }, [visibleColumns, customFieldDefs, showRowActions, userRole]);
+  }, [visibleColumns, customFieldDefs, showRowActions, userRole, columnOrder]);
+
+  // Persist order — side effect, belongs in useEffect, not useMemo
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(columnOrder));
+    }
+  }, [columnOrder]);
+
+  const handleDragStart = useCallback((key) => setDraggedKey(key), []);
+  const handleDragOver = useCallback((e, key) => { e.preventDefault(); setDragOverKey(key); }, []);
+  const handleDragEnd = useCallback(() => { setDraggedKey(null); setDragOverKey(null); }, []);
+
+  const handleDrop = useCallback((targetKey) => {
+    if (!draggedKey || draggedKey === targetKey) { setDraggedKey(null); setDragOverKey(null); return; }
+    setColumnOrder(prev => {
+      const next = [...prev];
+      const allKeys = columnDefs.filter(c => c.orderable).map(c => c.key);
+      allKeys.forEach(k => { if (!next.includes(k)) next.push(k); });
+
+      const from = next.indexOf(draggedKey);
+      const to = next.indexOf(targetKey);
+      if (from === -1 || to === -1) return prev;
+      next.splice(from, 1);
+      next.splice(to, 0, draggedKey);
+      return next;
+    });
+    setDraggedKey(null);
+    setDragOverKey(null);
+  }, [draggedKey, columnDefs]);
+
 
   const totalTableWidth = useMemo(
     () => columnDefs.reduce((sum, c) => sum + (colWidths[c.key] ?? c.width), 0),
     [columnDefs, colWidths]
   );
 
-  // Apply status + search filter on top of parent-provided campaigns
+  // Apply status + all active search filters on top of parent-provided campaigns
   const filteredCampaigns = useMemo(() => {
     return campaigns.filter(c => {
       const matchStatus = statusFilter === 'All'
         || c.status?.toLowerCase() === statusFilter.toLowerCase()
         || (statusFilter === 'Active' && c.active);
-      const matchSearch = !searchText.trim()
-        || c.name?.toLowerCase().includes(searchText.toLowerCase());
-      return matchStatus && matchSearch;
+      const matchAllFilters = filters.every(f =>
+        c.name?.toLowerCase().includes(f.text.toLowerCase())
+      );
+      return matchStatus && matchAllFilters;
     });
-  }, [campaigns, statusFilter, searchText]);
+  }, [campaigns, statusFilter, filters]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -437,8 +552,8 @@ export default function CampaignList({
                 <h3 className="font-semibold text-gray-800">Manage Table Columns</h3>
                 <div className="flex gap-2">
                   <button onClick={showAllColumns} className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition">Show All</button>
-                  <button onClick={hideAllColumns} className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">Hide All</button>
-                  <button onClick={() => setShowColumnManager(false)} className="text-gray-500 hover:text-gray-700"><X size={18} /></button>
+                  <button onClick={hideAllColumns} className="text-xs px-3 py-1 bg-gray-100 text-black rounded hover:bg-gray-200 transition">Hide All</button>
+                  <button onClick={() => setShowColumnManager(false)} className="text-gray-500 hover:text-black"><X size={18} /></button>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -458,27 +573,27 @@ export default function CampaignList({
                   <label key={col.key} className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={visibleColumns[col.key] !== false}
                       onChange={() => toggleColumn(col.key)} className="rounded" />
-                    <span className="text-sm text-gray-700">{col.label}</span>
+                    <span className="text-sm text-black">{col.label}</span>
                   </label>
                 ))}
                 <label className="flex items-center gap-2 cursor-pointer opacity-50">
                   <input type="checkbox" checked disabled className="rounded" />
-                  <span className="text-sm text-gray-700">Campaign (Always Visible)</span>
+                  <span className="text-sm text-black">Campaign (Always Visible)</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer opacity-50">
                   <input type="checkbox" checked disabled className="rounded" />
-                  <span className="text-sm text-gray-700">Actions (Always Visible)</span>
+                  <span className="text-sm text-black">Actions (Always Visible)</span>
                 </label>
               </div>
               {customFields.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Custom Fields</h4>
+                  <h4 className="text-sm font-semibold text-black mb-3">Custom Fields</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {customFields.map(field => (
                       <label key={field._id} className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={visibleColumns[`custom_${field.name}`] !== false}
                           onChange={() => toggleColumn(`custom_${field.name}`)} className="rounded" />
-                        <span className="text-sm text-gray-700">{field.label}</span>
+                        <span className="text-sm text-black">{field.label}</span>
                       </label>
                     ))}
                   </div>
@@ -516,14 +631,14 @@ export default function CampaignList({
           <FilterBar
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
-            searchText={searchText}
-            onSearchChange={setSearchText}
-            onClear={() => { setStatusFilter('All'); setSearchText(''); }}
-            campaigns={campaigns}
+            filters={filters}
+            onAddFilter={addFilter}
+            onRemoveFilter={removeFilter}
+            onClearAll={clearAllFilters}
           />
         </div>
 
-        {/* Campaign Table */}
+
         {/* Campaign Table */}
         {!loading && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -543,20 +658,34 @@ export default function CampaignList({
                   <tr>
                     {columnDefs.map(c => {
                       const isLastColEye = c.key === 'lastCol';
+                      const isOrderable = c.orderable;
                       return (
                         <th
                           key={c.key}
-                          className="relative px-4 py-3 text-left text-xs font-medium text-gray-600 border border-gray-200 overflow-hidden whitespace-nowrap"
+                          draggable={isOrderable}
+                          onDragStart={() => isOrderable && handleDragStart(c.key)}
+                          onDragOver={(e) => isOrderable && handleDragOver(e, c.key)}
+                          onDrop={() => isOrderable && handleDrop(c.key)}
+                          onDragEnd={handleDragEnd}
+                          className={`relative px-4 py-3 text-left text-xs font-bold text-black border border-gray-200 overflow-hidden whitespace-nowrap
+        ${isOrderable ? 'cursor-move' : ''}
+        ${dragOverKey === c.key && draggedKey !== c.key ? 'bg-blue-100' : ''}
+        ${draggedKey === c.key ? 'opacity-40' : ''}`}
                         >
                           {c.key === 'checkbox' && <input type="checkbox" className="rounded" />}
-                          {c.key !== 'checkbox' && !isLastColEye && c.label}
+                          {c.key !== 'checkbox' && !isLastColEye && (
+                            <span className="flex items-center gap-1">
+                              {isOrderable && <GripVertical size={11} className="text-black shrink-0" />}
+                              {c.label}
+                            </span>
+                          )}
                           {isLastColEye && (
                             <div className="flex justify-end">
                               <button
                                 onClick={() => setShowRowActions(v => !v)}
                                 title={showRowActions ? 'Hide actions' : 'Show actions'}
                                 className={`p-1.5 rounded-lg border transition
-                                  ${showRowActions
+              ${showRowActions
                                     ? 'bg-blue-50 border-blue-200 text-blue-600'
                                     : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300'}`}>
                                 {showRowActions ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -624,7 +753,7 @@ export default function CampaignList({
                                       <div className="text-xs">
                                         {hasDaily
                                           ? <span className="text-emerald-600 font-medium">● has entry</span>
-                                          : <span className="text-gray-300">○ no entry</span>}
+                                          : <span className="text-black">○ no entry</span>}
                                       </div>
                                     )}
                                   </div>
@@ -633,8 +762,8 @@ export default function CampaignList({
                               case 'delivery':
                                 content = (
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
-                                    <span className="text-sm text-gray-700 truncate">
+                                    <span className={`w-2 h-2 rounded-full shrink-0  ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
+                                    <span className="text-sm text-black truncate">
                                       <CellVal campaignId={campaign._id} fieldKey="delivery" defaultVal={campaign.delivery} dailyDataMap={dailyDataMap} tableDate={tableDate} />
                                     </span>
                                   </div>
