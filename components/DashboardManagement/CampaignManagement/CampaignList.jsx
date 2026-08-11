@@ -86,7 +86,7 @@ function FilterBar({ statusFilter, onStatusChange, filters, onAddFilter, onRemov
             <div className="absolute left-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[130px]">
               {STATUS_OPTIONS.map(s => (
                 <button key={s} onClick={() => { onStatusChange(s); setShowStatusMenu(false); }}
-                  className={`w-full text-left px-4 py-2 text-sm transition
+                  className={`w-full  text-center px-4 py-2 text-sm transition
                     ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-black hover:bg-gray-50'}`}>
                   {s}
                 </button>
@@ -100,7 +100,7 @@ function FilterBar({ statusFilter, onStatusChange, filters, onAddFilter, onRemov
       {filters.map(f => (
         <div key={f.id}
           className="flex items-center gap-1.5 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black shrink-0">
-          <span className="text-gray-600">Campaign name contains</span>
+          <span className="text-black">Campaign name contains</span>
           <span className="font-semibold">{f.text}</span>
           <button onClick={() => onRemoveFilter(f.id)}
             className="ml-1 hover:text-red-500 transition text-gray-400">
@@ -166,7 +166,7 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition border
                 ${isPreset(p)
                   ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'}`}>
+                  : 'bg-gray-50 text-black border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'}`}>
               {p.label}
             </button>
           ))}
@@ -428,7 +428,7 @@ export default function CampaignList({
 
   const columnDefs = useMemo(() => {
     const defs = [];
-    if (visibleColumns.checkbox) defs.push({ key: 'checkbox', label: '', width: 44, resizable: false, fixed: true });
+    if (visibleColumns.checkbox) defs.push({ key: 'checkbox', label: '', width: 50, resizable: false, fixed: true });
     if (visibleColumns.toggle) defs.push({ key: 'toggle', label: 'On/Off', width: 90, fixed: true });
     defs.push({ key: 'name', label: 'Campaign', width: 220, fixed: true });
 
@@ -622,7 +622,7 @@ export default function CampaignList({
         {loading && (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-            <p className="mt-2 text-gray-600">Loading campaigns...</p>
+            <p className="mt-2 text-black">Loading campaigns...</p>
           </div>
         )}
 
@@ -667,7 +667,7 @@ export default function CampaignList({
                           onDragOver={(e) => isOrderable && handleDragOver(e, c.key)}
                           onDrop={() => isOrderable && handleDrop(c.key)}
                           onDragEnd={handleDragEnd}
-                          className={`relative px-4 py-3 text-left text-xs font-bold text-black border border-gray-200 overflow-hidden whitespace-nowrap
+                          className={`relative px-4 py-3  text-center text-xs font-bold text-black border border-gray-200 overflow-hidden whitespace-nowrap
         ${isOrderable ? 'cursor-move' : ''}
         ${dragOverKey === c.key && draggedKey !== c.key ? 'bg-blue-100' : ''}
         ${draggedKey === c.key ? 'opacity-40' : ''}`}
@@ -721,7 +721,7 @@ export default function CampaignList({
                         <tr
                           key={campaign._id}
                           data-row-id={campaign._id}
-                          className={`hover:bg-gray-50 transition ${tableDate && !hasDaily ? 'opacity-75' : ''}`}
+                          className={`hover:bg-gray-50 text-center transition ${tableDate && !hasDaily ? 'opacity-75' : ''}`}
                           style={{ height: rh }}
                         >
                           {columnDefs.map((c, idx) => {
@@ -791,8 +791,8 @@ export default function CampaignList({
                                 content = <CellVal campaignId={campaign._id} fieldKey="reach" defaultVal={campaign.reach} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
                                 break;
                               case 'ends':
-                                content = campaign.endDate;
-                                break;
+                                content = <span className="text-black">{campaign.endDate}</span>;
+                                break;;
                               case 'dailyEntry':
                                 content = (
                                   <button
@@ -808,13 +808,13 @@ export default function CampaignList({
                                 content = showRowActions ? (
                                   <div className="flex gap-2">
                                     <button onClick={() => onEdit(campaign)} className="p-1 hover:bg-gray-200 rounded" title="Edit">
-                                      <Edit size={16} className="text-gray-600" />
+                                      <Edit size={16} className="text-black" />
                                     </button>
                                     <button onClick={() => onDuplicate(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Duplicate">
-                                      <Copy size={16} className="text-gray-600" />
+                                      <Copy size={16} className="text-black" />
                                     </button>
                                     <button onClick={() => onDelete(campaign._id)} className="p-1 hover:bg-gray-200 rounded" title="Delete">
-                                      <Trash2 size={16} className="text-gray-600" />
+                                      <Trash2 size={16} className="text-black" />
                                     </button>
                                   </div>
                                 ) : (
@@ -836,10 +836,10 @@ export default function CampaignList({
                                     const v = getCF(rec.customFields, c.field.name);
                                     const str = fmtCFVal(v);
                                     content = str ? (
-                                      <span className="font-semibold text-blue-700">
+                                      <span className="text-black">
                                         {str}
                                         {rec._aggregated && rec.days > 1 && (
-                                          <span className="ml-1 text-xs text-violet-400 font-normal">Σ{rec.days}d</span>
+                                          <span className="ml-1 text-xs text-black font-normal">Σ{rec.days}d</span>
                                         )}
                                       </span>
                                     ) : <span className="text-gray-300 italic text-xs">—</span>;
@@ -877,7 +877,7 @@ export default function CampaignList({
               </table>
             </div>
 
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-600 flex items-center justify-between">
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-sm text-black flex items-center justify-between">
               <span>Results from {filteredCampaigns.length} of {campaigns.length} campaigns</span>
               {tableDate && (
                 <span className="text-xs text-blue-600 font-medium flex items-center gap-1">

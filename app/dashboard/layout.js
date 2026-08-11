@@ -25,6 +25,7 @@ import {
   HelpCircle,
   RefreshCw,
   HomeIcon,
+  Music2,
 } from "lucide-react";
 
 // ─── DV360-style icon button ──────────────────────────────────────────────────
@@ -114,6 +115,11 @@ export default function DashboardLayout({ children }) {
         { label: "Mother Brands", link: "/dashboard/brands" },
       ],
     },
+    {
+      icon: Music2,
+      label: "Tiktok Ads Manager",
+      link: "/dashboard/tiktok-ads-manager",
+    },
     { icon: Layers, label: "Creatives", link: "/dashboard/brands" },
     { icon: Target, label: "Audiences", link: "/dashboard/brands" },
     { icon: Users, label: "Users", link: "/dashboard/users" },
@@ -128,7 +134,6 @@ export default function DashboardLayout({ children }) {
     <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <header className="h-14 bg-white border-b border-gray-200 flex items-center px-3 gap-2 shrink-0 z-30">
-
         {/* Hamburger */}
         <button
           onClick={() => setSidebarOpen((v) => !v)}
@@ -168,11 +173,11 @@ export default function DashboardLayout({ children }) {
 
         {/* Right icon group */}
         <div className="flex items-center gap-0.5">
-          <IconBtn icon={Search}     label="Search" />
-          <IconBtn icon={Bell}       label="Notifications" badge />
-          <IconBtn icon={Users}      label="Support" />
-          <IconBtn icon={Monitor}    label="Preview" />
-          <IconBtn icon={FileText}   label="Reports" />
+          <IconBtn icon={Search} label="Search" />
+          <IconBtn icon={Bell} label="Notifications" badge />
+          <IconBtn icon={Users} label="Support" />
+          <IconBtn icon={Monitor} label="Preview" />
+          <IconBtn icon={FileText} label="Reports" />
           <IconBtn icon={LayoutGrid} label="More apps" />
 
           {/* Avatar / user menu */}
@@ -185,27 +190,43 @@ export default function DashboardLayout({ children }) {
             </button>
             {userMenuOpen && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setUserMenuOpen(false)}
+                />
                 <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50 overflow-hidden">
                   {/* User info */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold mx-auto mb-2">
                       {initials}
                     </div>
-                    <p className="text-sm font-semibold text-gray-800 text-center">{user?.name}</p>
-                    <p className="text-xs text-gray-400 text-center capitalize">{user?.role}</p>
+                    <p className="text-sm font-semibold text-gray-800 text-center">
+                      {user?.name}
+                    </p>
+                    <p className="text-xs text-gray-400 text-center capitalize">
+                      {user?.role}
+                    </p>
                   </div>
-                  <Link href="/dashboard/profile" onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                  >
                     <User size={15} className="text-gray-400" /> Profile
                   </Link>
-                  <Link href="/dashboard/settings" onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                  <Link
+                    href="/dashboard/settings"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                  >
                     <Settings size={15} className="text-gray-400" /> Settings
                   </Link>
                   <hr className="my-1 border-gray-100" />
                   <button
-                    onClick={() => { setUserMenuOpen(false); logout(); }}
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      logout();
+                    }}
                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
                   >
                     <LogOut size={15} /> Sign out
@@ -219,10 +240,10 @@ export default function DashboardLayout({ children }) {
 
       {/* ── Body row ────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-
         {/* ── Left sidebar ──────────────────────────────────────────────── */}
-        <aside className={`${sidebarOpen ? "w-56" : "w-14"} bg-white border-r border-gray-200 flex flex-col transition-all duration-200 shrink-0 overflow-hidden`}>
-
+        <aside
+          className={`${sidebarOpen ? "w-56" : "w-14"} bg-white border-r border-gray-200 flex flex-col transition-all duration-200 shrink-0 overflow-hidden`}
+        >
           {/* Nav items */}
           <nav className="flex-1 py-2 overflow-y-auto overflow-x-hidden">
             {navItems.map((item) => {
@@ -240,20 +261,32 @@ export default function DashboardLayout({ children }) {
                         className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition
                           ${isActive ? "text-gray-700 bg-blue-50" : "text-gray-700 hover:bg-gray-50"}`}
                       >
-                        <item.icon size={18} strokeWidth={1.8} className="shrink-0" />
+                        <item.icon
+                          size={18}
+                          strokeWidth={1.8}
+                          className="shrink-0"
+                        />
                         {sidebarOpen && (
                           <>
-                            <span className="flex-1 text-left font-medium">{item.label}</span>
-                            <ChevronDown size={14} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                            <span className="flex-1 text-left font-medium">
+                              {item.label}
+                            </span>
+                            <ChevronDown
+                              size={14}
+                              className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                            />
                           </>
                         )}
                       </button>
                       {isExpanded && sidebarOpen && (
                         <div className="ml-9 border-l border-gray-100">
                           {item.submenu.map((sub) => (
-                            <Link key={sub.label} href={sub.link}
+                            <Link
+                              key={sub.label}
+                              href={sub.link}
                               className={`block px-3 py-2 text-xs transition
-                                ${pathname === sub.link ? "text-gray-700 font-semibold" : "text-gray-500 hover:text-gray-800"}`}>
+                                ${pathname === sub.link ? "text-gray-700 font-semibold" : "text-gray-500 hover:text-gray-800"}`}
+                            >
                               {sub.label}
                             </Link>
                           ))}
@@ -261,11 +294,19 @@ export default function DashboardLayout({ children }) {
                       )}
                     </>
                   ) : (
-                    <Link href={item.link}
+                    <Link
+                      href={item.link}
                       className={`flex items-center gap-3 px-3 py-2.5 text-sm transition
-                        ${pathname === item.link ? "text-gray-700 bg-blue-50 font-semibold" : "text-gray-700 hover:bg-gray-50"}`}>
-                      <item.icon size={18} strokeWidth={1.8} className="shrink-0" />
-                      {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                        ${pathname === item.link ? "text-gray-700 bg-blue-50 font-semibold" : "text-gray-700 hover:bg-gray-50"}`}
+                    >
+                      <item.icon
+                        size={18}
+                        strokeWidth={1.8}
+                        className="shrink-0"
+                      />
+                      {sidebarOpen && (
+                        <span className="font-medium">{item.label}</span>
+                      )}
                     </Link>
                   )}
                 </div>
@@ -280,7 +321,9 @@ export default function DashboardLayout({ children }) {
                 {initials}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-700 truncate">{user?.name}</p>
+                <p className="text-xs font-semibold text-gray-700 truncate">
+                  {user?.name}
+                </p>
                 <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
               </div>
             </div>

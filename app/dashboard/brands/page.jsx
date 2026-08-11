@@ -43,7 +43,7 @@ function Th({ label, sortKey, sortState, onSort, align = 'left', className = '',
             onClick={() => onSort(sortKey)}
             className={`relative px-4 py-3 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap overflow-hidden border border-gray-200
         ${align === 'right' ? 'text-right' : 'text-left'}
-        ${active ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'} ${className}`}
+        ${active ? 'text-gray-900' : 'text-gray-400 hover:text-black'} ${className}`}
         >
             <span className="inline-flex items-center gap-1">
                 {label}
@@ -270,7 +270,7 @@ function BrandModal({ brand, onSave, onClose, saving }) {
                         {saving && <Loader2 size={14} className="animate-spin" />}
                         {saving ? 'Saving…' : brand ? 'Save' : 'Create Brand'}
                     </button>
-                    <button onClick={onClose} className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-200">
+                    <button onClick={onClose} className="flex-1 bg-gray-100 text-black py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-200">
                         Cancel
                     </button>
                 </div>
@@ -427,7 +427,7 @@ export default function BrandsPage() {
 
 
             <div className="bg-slate-50 flex items-center px-8 py-4">
-                <h2 className="text-2xl font-medium text-gray-700">Advertiser</h2>
+                <h2 className="text-2xl font-medium text-black">Advertiser</h2>
                 <h2 className="text-lg font-medium text-gray-900 mx-4 px-4 bg-gray-100 rounded-md">Limited Access</h2>
             </div>
 
@@ -446,7 +446,7 @@ export default function BrandsPage() {
                     )}
 
                     <button onClick={fetchBrands}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                        className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg transition">
                         <RefreshCw size={15} />
                     </button>
                 </div>
@@ -463,7 +463,7 @@ export default function BrandsPage() {
                                 <div className="relative">
                                     <button
                                         onClick={() => setCalOpen(o => !o)}
-                                        className="flex items-center gap-2 px-6 py-4 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition shadow-sm"
+                                        className="flex items-center gap-2 px-6 py-4 bg-white border border-gray-200 rounded-md text-sm font-medium text-black hover:border-blue-400 hover:bg-blue-50 transition shadow-sm"
                                     >
                                         <Calendar size={13} className="text-blue-500" />
                                         {new Date(chartDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
@@ -477,7 +477,7 @@ export default function BrandsPage() {
                                                     const d = new Date(v.year, v.month - 1);
                                                     return { year: d.getFullYear(), month: d.getMonth() };
                                                 })} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
-                                                    <ChevronLeft size={15} className="text-gray-600" />
+                                                    <ChevronLeft size={15} className="text-black" />
                                                 </button>
                                                 <div className="flex items-center gap-2">
                                                     <select
@@ -503,7 +503,7 @@ export default function BrandsPage() {
                                                     const d = new Date(v.year, v.month + 1);
                                                     return { year: d.getFullYear(), month: d.getMonth() };
                                                 })} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
-                                                    <ChevronRight size={15} className="text-gray-600" />
+                                                    <ChevronRight size={15} className="text-black" />
                                                 </button>
                                             </div>
 
@@ -532,7 +532,7 @@ export default function BrandsPage() {
                                                                 className={`w-full aspect-square flex items-center justify-center text-xs rounded-lg font-medium transition
                               ${isSelected ? 'bg-blue-600 text-white shadow-md' :
                                                                         isToday ? 'bg-blue-50 text-blue-600 font-bold' :
-                                                                            'text-gray-700 hover:bg-gray-100'}`}
+                                                                            'text-black hover:bg-gray-100'}`}
                                                             >{d}</button>
                                                         );
                                                     }
@@ -625,7 +625,7 @@ export default function BrandsPage() {
                             Delete
                         </button>
                     )}
-                    <button onClick={() => setSelected(new Set())} className="ml-auto text-gray-400 hover:text-gray-600">
+                    <button onClick={() => setSelected(new Set())} className="ml-auto text-gray-400 hover:text-black">
                         <X size={14} />
                     </button>
                 </div>
@@ -772,14 +772,14 @@ export default function BrandsPage() {
                                         </td>
 
                                         {/* Total campaigns */}
-                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-gray-700 font-medium">
+                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-black font-medium">
                                             <ClipCell height={rh} className="px-4 justify-end">
                                                 {s.total || 0}
                                             </ClipCell>
                                         </td>
 
                                         {/* Impressions */}
-                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-gray-600">
+                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-black">
                                             <ClipCell height={rh} className="px-4 justify-end">
                                                 {s.totalImpressions && s.totalImpressions !== '—'
                                                     ? s.totalImpressions : <span className="text-gray-300">—</span>}
@@ -787,7 +787,7 @@ export default function BrandsPage() {
                                         </td>
 
                                         {/* Budget */}
-                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-gray-600">
+                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-black">
                                             <ClipCell height={rh} className="px-4 justify-end">
                                                 {s.totalBudget && s.totalBudget !== '—'
                                                     ? s.totalBudget : <span className="text-gray-300">—</span>}
@@ -795,7 +795,7 @@ export default function BrandsPage() {
                                         </td>
 
                                         {/* Spent */}
-                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-gray-600">
+                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-black">
                                             <ClipCell height={rh} className="px-4 justify-end">
                                                 {s.totalSpent && s.totalSpent !== '—'
                                                     ? s.totalSpent : <span className="text-gray-300">—</span>}
@@ -803,7 +803,7 @@ export default function BrandsPage() {
                                         </td>
 
                                         {/* Results */}
-                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-gray-600">
+                                        <td className="border border-gray-200 p-0 text-right tabular-nums text-black">
                                             <ClipCell height={rh} className="px-4 justify-end">
                                                 {s.totalResults && s.totalResults !== '—'
                                                     ? s.totalResults : <span className="text-gray-300">—</span>}
