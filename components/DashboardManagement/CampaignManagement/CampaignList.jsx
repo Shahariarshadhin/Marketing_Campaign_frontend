@@ -1,7 +1,7 @@
 
 "use client";
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown, GripVertical } from 'lucide-react';
+import { Copy, Edit, Plus, Settings, Trash2, X, CalendarDays, Loader2, Eye, EyeOff, Search, Filter, ChevronDown, GripVertical, Check, ChevronUp, Rows3, Columns3, FileBarChart, DownloadIcon, Maximize2, MoreVertical, LineChart, SlidersHorizontal } from 'lucide-react';
 import Link from 'next/link';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -10,6 +10,25 @@ function offsetISO(n) { const d = new Date(); d.setDate(d.getDate() - n); return
 function fmtShort(iso) {
   if (!iso) return '';
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Format a value as currency — adds $ if it's a plain number/string, leaves
+// existing currency symbols, dashes, and non-numeric text alone.
+function fmtMoney(v) {
+  if (v === null || v === undefined || v === '' || v === '—') return v ?? '—';
+  const str = String(v).trim();
+  if (str === '—' || /[$€£¥]/.test(str)) return str; // already has a currency sign
+  const num = parseFloat(str.replace(/,/g, ''));
+  if (isNaN(num)) return str; // not a number (e.g. "Using ad set budget") — leave as-is
+  return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+
+function fmtDateShort(iso) {
+  if (!iso || iso === 'Ongoing' || iso === '—') return null;
+  const d = new Date(iso.includes('T') ? iso : `${iso}T00:00:00`);
+  if (isNaN(d)) return iso; // fallback if it's already a non-ISO string
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // Safely read a value from either a plain object or a Mongoose Map
@@ -27,10 +46,57 @@ function fmtCFVal(v) {
   return String(v);
 }
 
+function HeaderToolbarButton({ icon: Icon, label, badge, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-black transition">
+      <span className="relative">
+        <Icon size={18} strokeWidth={1.8} />
+        {badge != null && (
+          <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-bold leading-none">
+            {badge}
+          </span>
+        )}
+      </span>
+      <span className="text-[11px] font-medium leading-none">{label}</span>
+    </button>
+  );
+}
+
+function ToolbarIconButton({ icon: Icon, label, onClick, disabled }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg transition
+        ${disabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-100 hover:text-black'}`}>
+      <Icon size={16} strokeWidth={1.8} />
+      <span className="text-[11px] font-medium leading-none">{label}</span>
+    </button>
+  );
+}
+
+function exportCampaignsCSV(campaigns) {
+  const headers = ['Campaign', 'Delivery', 'Results', 'Actions', 'Cost per Result', 'Budget', 'Amount Spent', 'Impressions', 'Reach', 'Ends'];
+  const rows = campaigns.map(c => [c.name, c.delivery, c.results, c.actions, c.costPerResult, c.budget, c.amountSpent, c.impressions, c.reach, c.endDate]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'campaigns.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ─── DV360-style filter bar ────────────────────────────────────────────────────
-function FilterBar({ statusFilter, onStatusChange, filters, onAddFilter, onRemoveFilter, onClearAll }) {
+function FilterBar({
+  statusFilter, onStatusChange, filters, onAddFilter, onRemoveFilter, onClearAll,
+  onColumnsClick, onDownloadClick, onSegmentClick, onReportsClick, onExpandClick, onMoreClick,
+  collapsed, onToggleCollapsed,
+}) {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const searchInputRef = useRef(null);
 
   const STATUS_OPTIONS = ['All', 'Active', 'Paused', 'Draft', 'Scheduled', 'Completed'];
 
@@ -42,93 +108,100 @@ function FilterBar({ statusFilter, onStatusChange, filters, onAddFilter, onRemov
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      commitFilter();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); commitFilter(); }
   };
 
   const hasAnyFilter = filters.length > 0 || statusFilter !== 'All';
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200 flex-wrap">
-      {/* DV360 funnel icon with notification dot */}
-      <div className="relative shrink-0">
-        <div className="w-8 h-8 flex items-center justify-center text-blue-600">
-          <Filter size={17} strokeWidth={2} />
-          {hasAnyFilter && (
-            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white text-white flex items-center justify-center" style={{ fontSize: '7px' }}>
-              {filters.length + (statusFilter !== 'All' ? 1 : 0)}
-            </span>
+    <div className="flex items-center justify-between border-b border-gray-200 bg-white">
+      {/* ── Left: existing filter chips + search ─────────────────────── */}
+      <div className="flex items-center gap-2 px-4 py-2 flex-wrap flex-1 min-w-0">
+        <div className="relative shrink-0">
+          <div className="w-8 h-8 flex items-center justify-center text-blue-600">
+            <Filter size={17} strokeWidth={2} />
+            {hasAnyFilter && (
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white text-white flex items-center justify-center" style={{ fontSize: '7px' }}>
+                {filters.length + (statusFilter !== 'All' ? 1 : 0)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="relative shrink-0">
+          <div className="flex items-center gap-1 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black">
+            <span>Status: </span>
+            <button onClick={() => setShowStatusMenu(v => !v)}
+              className="flex items-center gap-0.5 font-semibold text-gray-800 hover:text-blue-600 transition">
+              {statusFilter === 'All' ? 'Active' : statusFilter}
+              <ChevronDown size={11} className="ml-0.5" />
+            </button>
+            <button onClick={() => onStatusChange('All')} className="ml-1 hover:text-red-500 transition text-gray-400">
+              <X size={12} />
+            </button>
+          </div>
+          {showStatusMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowStatusMenu(false)} />
+              <div className="absolute left-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[130px]">
+                {STATUS_OPTIONS.map(s => (
+                  <button key={s} onClick={() => { onStatusChange(s); setShowStatusMenu(false); }}
+                    className={`w-full text-left px-4 py-2 text-sm transition
+                      ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-black hover:bg-gray-50'}`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
-      </div>
 
-      {/* Status chip */}
-      <div className="relative shrink-0">
-        <div className="flex items-center gap-1 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black">
-          <span>Status: </span>
-          <button
-            onClick={() => setShowStatusMenu(v => !v)}
-            className="flex items-center gap-0.5 font-semibold text-gray-800 hover:text-blue-600 transition">
-            {statusFilter === 'All' ? 'Active' : statusFilter}
-            <ChevronDown size={11} className="ml-0.5" />
-          </button>
-          <button onClick={() => onStatusChange('All')}
-            className="ml-1 hover:text-red-500 transition text-gray-400">
-            <X size={12} />
-          </button>
+        {filters.map(f => (
+          <div key={f.id} className="flex items-center gap-1.5 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black shrink-0">
+            <span className="text-black">Campaign name contains</span>
+            <span className="font-semibold">{f.text}</span>
+            <button onClick={() => onRemoveFilter(f.id)} className="ml-1 hover:text-red-500 transition text-gray-400">
+              <X size={12} />
+            </button>
+          </div>
+        ))}
+
+        <div className="flex-1 min-w-[160px] relative">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            ref={searchInputRef}
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={commitFilter}
+            placeholder="Enter a search term or select filters"
+            className="w-full pl-8 pr-3 py-1.5 text-sm text-black bg-transparent border-0 focus:outline-none placeholder-gray-400"
+          />
         </div>
 
-        {showStatusMenu && (
-          <>
-            <div className="fixed inset-0 z-10" onClick={() => setShowStatusMenu(false)} />
-            <div className="absolute left-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[130px]">
-              {STATUS_OPTIONS.map(s => (
-                <button key={s} onClick={() => { onStatusChange(s); setShowStatusMenu(false); }}
-                  className={`w-full  text-center px-4 py-2 text-sm transition
-                    ${statusFilter === s ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-black hover:bg-gray-50'}`}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </>
+        {hasAnyFilter && (
+          <button onClick={onClearAll}
+            className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition">
+            <X size={15} />
+          </button>
         )}
       </div>
 
-      {/* ── Active search filter chips ─────────────────────────────────── */}
-      {filters.map(f => (
-        <div key={f.id}
-          className="flex items-center gap-1.5 bg-gray-100 border border-gray-300 rounded-full px-3 py-1 text-xs font-medium text-black shrink-0">
-          <span className="text-black">Campaign name contains</span>
-          <span className="font-semibold">{f.text}</span>
-          <button onClick={() => onRemoveFilter(f.id)}
-            className="ml-1 hover:text-red-500 transition text-gray-400">
-            <X size={12} />
-          </button>
-        </div>
-      ))}
-
-      {/* Search input — grows to fill, commits a new chip on Enter */}
-      <div className="flex-1 min-w-[200px] relative">
-        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={commitFilter}
-          placeholder="Enter a search term or select filters"
-          className="w-full pl-8 pr-3 py-1.5 text-sm text-black bg-transparent border-0 focus:outline-none placeholder-gray-400"
-        />
-      </div>
-
-      {/* Clear / close */}
-      {hasAnyFilter && (
-        <button onClick={onClearAll}
-          className="shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition">
-          <X size={15} />
+      {/* ── Right: icon toolbar (matches Google Ads style) ────────────── */}
+      <div className="flex items-center gap-0.5 px-2 border-l border-gray-100 shrink-0">
+        <ToolbarIconButton icon={Search} label="Search" onClick={() => searchInputRef.current?.focus()} />
+        <ToolbarIconButton icon={Rows3} label="Segment" onClick={onSegmentClick} />
+        <ToolbarIconButton icon={Columns3} label="Columns" onClick={onColumnsClick} />
+        <ToolbarIconButton icon={FileBarChart} label="Reports" onClick={onReportsClick} />
+        <ToolbarIconButton icon={DownloadIcon} label="Download" onClick={onDownloadClick} />
+        <ToolbarIconButton icon={Maximize2} label="Expand" onClick={onExpandClick} />
+        <ToolbarIconButton icon={MoreVertical} label="More" onClick={onMoreClick} disabled />
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+        <button onClick={onToggleCollapsed}
+          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-black rounded-lg transition">
+          <ChevronUp size={16} className={`transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -145,6 +218,8 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
     { label: '90 days', start: offsetISO(89), end: today },
   ];
 
+
+
   const isPreset = (p) => tableDate === p.start && tableEndDate === p.end;
   const isSingleDay = tableDate === tableEndDate;
   const hasEntries = Object.keys(dailyDataMap || {}).length;
@@ -152,14 +227,64 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
     ? fmtShort(tableDate)
     : `${fmtShort(tableDate)} → ${fmtShort(tableEndDate)}`;
 
+  function DailyViewDropdown({ presets, isPreset, onTableDateChange, onTableEndDateChange }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+
+    // Close on outside click
+    useEffect(() => {
+      const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+      document.addEventListener('mousedown', onClick);
+      return () => document.removeEventListener('mousedown', onClick);
+    }, []);
+
+    const active = presets.find(p => isPreset(p)) || presets[0];
+
+    return (
+      <div className="relative" ref={ref}>
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white border border-blue-600 shadow-sm hover:bg-blue-700 transition">
+          {active.label}
+          <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+
+        {open && (
+          <div className="absolute left-0 top-full mt-1.5 z-30 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[140px]">
+            {presets.map(p => (
+              <button
+                key={p.label}
+                onClick={() => {
+                  onTableDateChange(p.start);
+                  onTableEndDateChange(p.end);
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium text-left transition
+                ${isPreset(p) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}>
+                {p.label}
+                {isPreset(p) && <Check size={13} className="text-blue-600" />}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white border border-blue-100 rounded-xl  my-3 shadow-sm overflow-hidden">
+    <div className="bg-white border border-blue-100 rounded-xl my-3 shadow-sm">
       <div className="flex items-center gap-3 px-4 py-2.5 flex-wrap border-b border-blue-50">
         <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
           <CalendarDays size={14} />
           Daily Data View
         </div>
-        <div className="flex flex-wrap gap-1">
+        <DailyViewDropdown
+          presets={presets}
+          isPreset={isPreset}
+          onTableDateChange={onTableDateChange}
+          onTableEndDateChange={onTableEndDateChange}
+        />
+        {/* <div className="flex flex-wrap gap-1">
           {presets.map(p => (
             <button key={p.label}
               onClick={() => { onTableDateChange(p.start); onTableEndDateChange(p.end); }}
@@ -170,7 +295,7 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
               {p.label}
             </button>
           ))}
-        </div>
+        </div> */}
         {loadingDaily && (
           <div className="flex items-center gap-1.5 text-xs text-blue-500 ml-1">
             <Loader2 size={12} className="animate-spin" /> Loading…
@@ -206,19 +331,45 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
 }
 
 // ─── Cell value: show daily/range data if available ───────────────────────────
-function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate }) {
-  if (!tableDate || !dailyDataMap) return <>{defaultVal || '—'}</>;
+function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate, currency = false }) {
+  const fmt = (v) => (currency ? fmtMoney(v) : v);
+
+  if (!tableDate || !dailyDataMap) return <>{fmt(defaultVal) || '—'}</>;
   const rec = dailyDataMap[campaignId];
   if (!rec) return <span className="text-black italic text-xs">—</span>;
   const val = rec[fieldKey];
   if (!val || val === '—') return <span className="text-black italic text-xs">—</span>;
   return (
     <span className="font-normal text-black">
-      {val}
+      {fmt(val)}
       {rec._aggregated && rec.days > 1 && (
         <span className="ml-1 text-xs text-violet-400 font-normal">Σ{rec.days}d</span>
       )}
     </span>
+  );
+}
+
+function BudgetCell({ campaign, dailyDataMap, tableDate }) {
+  const start = fmtDateShort(campaign.startDate);
+  const end = campaign.endDate === 'Ongoing' ? 'Ongoing' : fmtDateShort(campaign.endDate);
+  const dateRange = start ? `${start} - ${end || 'Ongoing'}` : null;
+
+  return (
+    <div className="text-right leading-tight">
+      <div className="text-black">
+        <CellVal
+          campaignId={campaign._id}
+          fieldKey="budget"
+          defaultVal={campaign.budget}
+          dailyDataMap={dailyDataMap}
+          tableDate={tableDate}
+          currency
+        />
+      </div>
+      {dateRange && (
+        <div className="text-xs text-gray-400 mt-0.5">{dateRange}</div>
+      )}
+    </div>
   );
 }
 
@@ -375,9 +526,10 @@ export default function CampaignList({
   // ★ Controls visibility of Enter Data + action buttons columns
   const [showRowActions, setShowRowActions] = useState(false);
   // ★ DV360-style filter bar state
-  // ★ DV360-style filter bar state
   const [statusFilter, setStatusFilter] = useState('Active');
   const [filters, setFilters] = useState([]); // [{ id, text }]
+
+  const [filterBarCollapsed, setFilterBarCollapsed] = useState(false);
 
   const addFilter = useCallback((text) => {
     setFilters(prev => {
@@ -403,6 +555,12 @@ export default function CampaignList({
   const setColWidth = (key, w) => setColWidths(prev => ({ ...prev, [key]: w }));
   const getRowHeight = (id) => rowHeights[id] ?? 56;
   const setRowHeight = (id, h) => setRowHeights(prev => ({ ...prev, [id]: h }));
+
+  const [adjustCount, setAdjustCount] = useState(0); // or derive it from something real, e.g. pending column/field changes
+
+  const onMetricsClick = () => { /* open your metrics summary view */ };
+  const onAdjustClick = () => { /* open bulk-edit / adjust panel */ };
+  const onExpandClick = () => { /* toggle fullscreen / expand table */ };
 
   // ─── Column ordering (drag & drop) ─────────────────────────────────────────
 
@@ -514,7 +672,7 @@ export default function CampaignList({
         <div className="bg-white rounded-lg shadow-sm mb-1 p-4">
           <div className="space-y-3">
             <h1 className="text-2xl font-semibold text-gray-800">Campaigns</h1>
-            <div className="flex gap-2">
+            <div className="flex justify-between gap-2">
               {/* ★ Eye toggle button */}
               {/* <button
                 onClick={() => setShowRowActions(v => !v)}
@@ -528,20 +686,27 @@ export default function CampaignList({
               </button> */}
 
 
-              <button onClick={onCreateClick}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 shadow-lg rounded-md transition border border-green-200">
-                <Plus size={18} /> Create Campaign
-              </button>
+              <div className='flex gap-2'>
+                <button onClick={onCreateClick}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 shadow-lg rounded-md transition border border-green-200">
+                  <Plus size={18} /> Create Campaign
+                </button>
 
-              <button onClick={() => setShowColumnManager(!showColumnManager)}
-                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
-                <Settings size={18} /> Columns
-              </button>
-              <button onClick={onManageFieldsClick}
-                className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
-                <Plus size={18} /> Manage Fields
-              </button>
-
+                <button onClick={() => setShowColumnManager(!showColumnManager)}
+                  className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
+                  <Settings size={18} /> Columns
+                </button>
+                <button onClick={onManageFieldsClick}
+                  className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
+                  <Plus size={18} /> Manage Fields
+                </button>
+              </div>
+              <div className="flex items-center gap-0.5">
+                <HeaderToolbarButton icon={LineChart} label="Metrics" onClick={onMetricsClick} />
+                <HeaderToolbarButton icon={SlidersHorizontal} label="Adjust" badge={adjustCount} onClick={onAdjustClick} />
+                <HeaderToolbarButton icon={DownloadIcon} label="Download" onClick={() => exportCampaignsCSV(filteredCampaigns)} />
+                <HeaderToolbarButton icon={Maximize2} label="Expand" onClick={onExpandClick} />
+              </div>
             </div>
           </div>
 
@@ -635,6 +800,14 @@ export default function CampaignList({
             onAddFilter={addFilter}
             onRemoveFilter={removeFilter}
             onClearAll={clearAllFilters}
+            onColumnsClick={() => setShowColumnManager(v => !v)}
+            onDownloadClick={() => exportCampaignsCSV(filteredCampaigns)}
+            onSegmentClick={() => { }}
+            onReportsClick={() => { }}
+            onExpandClick={() => { }}
+            onMoreClick={() => { }}
+            collapsed={filterBarCollapsed}
+            onToggleCollapsed={() => setFilterBarCollapsed(v => !v)}
           />
         </div>
 
@@ -741,7 +914,7 @@ export default function CampaignList({
                                 break;
                               case 'name':
                                 content = (
-                                  <div className="flex flex-col gap-0.5 min-w-0 w-full">
+                                  <div className="flex flex-col gap-0.5 min-w-0 w-full text-left">
                                     <Link
                                       href={userRole === 'admin'
                                         ? `/dashboard/campaign/${campaign._id}/insertion-orders`
@@ -776,13 +949,13 @@ export default function CampaignList({
                                 content = <CellVal campaignId={campaign._id} fieldKey="results" defaultVal={campaign.results} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
                                 break;
                               case 'costPerResult':
-                                content = <CellVal campaignId={campaign._id} fieldKey="costPerResult" defaultVal={campaign.costPerResult} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                content = <CellVal campaignId={campaign._id} fieldKey="costPerResult" defaultVal={campaign.costPerResult} dailyDataMap={dailyDataMap} tableDate={tableDate} currency />;
                                 break;
                               case 'budget':
-                                content = <CellVal campaignId={campaign._id} fieldKey="budget" defaultVal={campaign.budget} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                content = <BudgetCell campaign={campaign} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
                                 break;
                               case 'amountSpent':
-                                content = <CellVal campaignId={campaign._id} fieldKey="amountSpent" defaultVal={campaign.amountSpent} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
+                                content = <CellVal campaignId={campaign._id} fieldKey="amountSpent" defaultVal={campaign.amountSpent} dailyDataMap={dailyDataMap} tableDate={tableDate} currency />;
                                 break;
                               case 'impressions':
                                 content = <CellVal campaignId={campaign._id} fieldKey="impressions" defaultVal={campaign.impressions} dailyDataMap={dailyDataMap} tableDate={tableDate} />;
