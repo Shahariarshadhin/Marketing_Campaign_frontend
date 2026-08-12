@@ -23,6 +23,32 @@ function fmtMoney(v) {
   return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+const THOUSANDS_FIELDS = new Set(['impressions', 'reach', 'results', 'clicks', 'conversions', 'actions']);
+const PERCENT_FIELDS = new Set(['ctr']);
+
+// Normalizes display regardless of how the value was typed (with/without % or commas)
+function formatFieldValue(key, value, currency = false) {
+  if (value === null || value === undefined || value === '' || value === '—') return value ?? '—';
+  const str = String(value).trim();
+  if (str === '—') return str;
+
+  if (currency) return fmtMoney(str);
+
+  const lowerKey = String(key || '').toLowerCase().replace(/[^a-z]/g, '');
+
+  if (PERCENT_FIELDS.has(lowerKey)) {
+    const num = parseFloat(str.replace(/[^0-9.\-]/g, ''));
+    return isNaN(num) ? str : `${num}%`;
+  }
+
+  if (THOUSANDS_FIELDS.has(lowerKey)) {
+    const num = parseFloat(str.replace(/,/g, ''));
+    return isNaN(num) ? str : num.toLocaleString();
+  }
+
+  return str;
+}
+
 
 function fmtDateShort(iso) {
   if (!iso || iso === 'Ongoing' || iso === '—') return null;
@@ -231,21 +257,21 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
 
-    // Close on outside click
     useEffect(() => {
       const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
       document.addEventListener('mousedown', onClick);
       return () => document.removeEventListener('mousedown', onClick);
     }, []);
 
-    const active = presets.find(p => isPreset(p)) || presets[0];
+    const matched = presets.find(p => isPreset(p));
+    const label = matched ? matched.label : 'Custom';
 
     return (
       <div className="relative" ref={ref}>
         <button
           onClick={() => setOpen(v => !v)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white border border-blue-600 shadow-sm hover:bg-blue-700 transition">
-          {active.label}
+          {label}
           <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
 
@@ -332,13 +358,21 @@ function TableDateBar({ tableDate, onTableDateChange, tableEndDate, onTableEndDa
 
 // ─── Cell value: show daily/range data if available ───────────────────────────
 function CellVal({ campaignId, fieldKey, defaultVal, dailyDataMap, tableDate, currency = false }) {
-  const fmt = (v) => (currency ? fmtMoney(v) : v);
+  const fmt = (v) => formatFieldValue(fieldKey, v, currency);
 
-  if (!tableDate || !dailyDataMap) return <>{fmt(defaultVal) || '—'}</>;
+  if (!tableDate || !dailyDataMap) return <>{fmt(defaultVal) ?? '—'}</>;
+
   const rec = dailyDataMap[campaignId];
-  if (!rec) return <span className="text-black italic text-xs">—</span>;
-  const val = rec[fieldKey];
-  if (!val || val === '—') return <span className="text-black italic text-xs">—</span>;
+  const val = rec ? rec[fieldKey] : null;
+
+  if (!val || val === '—') {
+    // No daily override for this date — fall back to the campaign's own value
+    // instead of always showing a dash.
+    return defaultVal && defaultVal !== '—'
+      ? <span className="text-black">{fmt(defaultVal)}</span>
+      : <span className="text-black italic text-xs">—</span>;
+  }
+
   return (
     <span className="font-normal text-black">
       {fmt(val)}
@@ -495,6 +529,38 @@ const BUILTIN_ORDERABLE = [
   'delivery', 'actions', 'results', 'costPerResult',
   'budget', 'amountSpent', 'impressions', 'reach', 'ends',
 ];
+
+;
+
+const STATUS_DOT_COLORS = {
+  active:    'bg-green-500',
+  paused:    'bg-yellow-500',
+  learning:  'bg-blue-500',
+  error:     'bg-red-500',
+  completed: 'bg-gray-400',
+  draft:     'bg-gray-300',
+  scheduled: 'bg-indigo-400',
+};
+
+function getStatusDotColor(status) {
+  const key = String(status || '').toLowerCase().trim();
+  return STATUS_DOT_COLORS[key] || 'bg-gray-300'; // fallback for unknown/blank statuses
+}
+
+const STATUS_DELIVERY_LABELS = {
+  active:    'Active',
+  paused:    'Paused',
+  learning:  'Learning',
+  error:     'Error',
+  completed: 'Completed',
+  draft:     'In draft',
+  scheduled: 'Scheduled',
+}
+
+function getDeliveryLabel(status) {
+  const key = String(status || '').toLowerCase().trim();
+  return STATUS_DELIVERY_LABELS[key] || status || '—';
+}
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function CampaignList({
@@ -688,16 +754,16 @@ export default function CampaignList({
 
               <div className='flex gap-2'>
                 <button onClick={onCreateClick}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 shadow-lg rounded-md transition border border-green-200">
+                  className="flex items-center gap-2 bg-blue-600  text-white text-[14px] px-2 py-2 shadow-lg rounded-md transition border border-green-200">
                   <Plus size={18} /> Create Campaign
                 </button>
 
                 <button onClick={() => setShowColumnManager(!showColumnManager)}
-                  className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
+                  className="flex items-center gap-2 bg-white text-black text-[14px] px-2 py-2 shadow-lg rounded-md transition border border-blue-200">
                   <Settings size={18} /> Columns
                 </button>
                 <button onClick={onManageFieldsClick}
-                  className="flex items-center gap-2 bg-white text-black px-4 py-2 shadow-lg rounded-md transition border border-blue-200">
+                  className="flex items-center gap-2 bg-white text-black text-[14px] px-2 py-2 shadow-lg rounded-md transition border border-blue-200">
                   <Plus size={18} /> Manage Fields
                 </button>
               </div>
@@ -935,7 +1001,7 @@ export default function CampaignList({
                               case 'delivery':
                                 content = (
                                   <div className="flex items-center gap-2 min-w-0">
-                                    <span className={`w-2 h-2 rounded-full shrink-0  ${campaign.status === 'active' ? 'bg-green-500' : campaign.status === 'draft' ? 'bg-gray-400' : 'bg-yellow-500'}`} />
+                                    <span className={`w-2 h-2 rounded-full shrink-0 ${getStatusDotColor(campaign.status)}`} />
                                     <span className="text-sm text-black truncate">
                                       <CellVal campaignId={campaign._id} fieldKey="delivery" defaultVal={campaign.delivery} dailyDataMap={dailyDataMap} tableDate={tableDate} />
                                     </span>
@@ -1003,27 +1069,30 @@ export default function CampaignList({
                                 break;
                               default:
                                 if (c.field) {
-                                  // custom field column
+                                  let raw = null;
+                                  let aggregatedDays = null;
+
                                   if (tableDate && dailyDataMap?.[campaign._id]) {
                                     const rec = dailyDataMap[campaign._id];
-                                    const v = getCF(rec.customFields, c.field.name);
-                                    const str = fmtCFVal(v);
-                                    content = str ? (
-                                      <span className="text-black">
-                                        {str}
-                                        {rec._aggregated && rec.days > 1 && (
-                                          <span className="ml-1 text-xs text-black font-normal">Σ{rec.days}d</span>
-                                        )}
-                                      </span>
-                                    ) : <span className="text-gray-300 italic text-xs">—</span>;
-                                  } else {
-                                    const v = getCF(campaign.customFields, c.field.name)
-                                      ?? getCF(campaign.customFieldsData, c.field.name);
-                                    const str = fmtCFVal(v);
-                                    content = str
-                                      ? <span className="text-gray-800">{str}</span>
-                                      : <span className="text-gray-300">—</span>;
+                                    raw = getCF(rec.customFields, c.field.name);
+                                    if (rec._aggregated && rec.days > 1) aggregatedDays = rec.days;
                                   }
+
+                                  // Fall back to the campaign-level custom field value if no daily override exists
+                                  if (raw === null || raw === undefined || raw === '') {
+                                    raw = getCF(campaign.customFields, c.field.name) ?? getCF(campaign.customFieldsData, c.field.name);
+                                    aggregatedDays = null;
+                                  }
+
+                                  const displayVal = fmtCFVal(raw);
+                                  const formatted = displayVal ? formatFieldValue(c.field.name, displayVal) : null;
+
+                                  content = formatted ? (
+                                    <span className="text-black">
+                                      {formatted}
+                                      {aggregatedDays && <span className="ml-1 text-xs text-violet-400 font-normal">Σ{aggregatedDays}d</span>}
+                                    </span>
+                                  ) : <span className="text-gray-300 italic text-xs">—</span>;
                                 }
                             }
 

@@ -23,10 +23,21 @@ export default function CreateCampaign({
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+
+    setFormData(prev => {
+      const next = { ...prev, [name]: type === 'checkbox' ? checked : value };
+
+      // Keep Delivery Status in sync with Campaign Status automatically
+      if (name === 'status') {
+        const STATUS_DELIVERY_LABELS = {
+          active: 'Active', paused: 'Paused', learning: 'Learning',
+          error: 'Error', completed: 'Completed', draft: 'In draft', scheduled: 'Scheduled',
+        };
+        next.delivery = STATUS_DELIVERY_LABELS[value] || value;
+      }
+
+      return next;
+    });
   };
 
   const handleCustomFieldChange = (fieldName, value) => {
@@ -142,6 +153,8 @@ export default function CreateCampaign({
                 <option value="scheduled">Scheduled</option>
                 <option value="paused">Paused</option>
                 <option value="completed">Completed</option>
+                <option value="learning">Learning</option>
+                <option value="error">Error</option>
               </select>
             </div>
             <div>
@@ -164,9 +177,10 @@ export default function CreateCampaign({
             <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Status</label>
             <input
               type="text" name="delivery" value={formData.delivery}
-              onChange={handleInputChange} placeholder="e.g., In draft, Active, Scheduled"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              readOnly
+              className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2 text-gray-600 cursor-not-allowed"
             />
+            <p className="text-xs text-gray-400 mt-1">Automatically follows Campaign Status</p>
           </div>
 
           {/* ── Actions ───────────────────────────────────────────────────── */}
