@@ -90,6 +90,13 @@ function fmtCFVal(v) {
   return String(v);
 }
 
+function isZeroDecimal(value) {
+  if (value === null || value === undefined || value === '') return false;
+  const num = parseFloat(String(value).replace(/[$€£¥,%\s]/g, ''));
+  if (isNaN(num)) return false;
+  return Math.round((num - Math.floor(num)) * 100) === 0;
+}
+
 function HeaderToolbarButton({ icon: Icon, label, badge, onClick }) {
   return (
     <button
@@ -1108,16 +1115,26 @@ export default function CampaignList({
                                   const displayVal = fmtCFVal(raw);
                                   let formatted = displayVal ? formatFieldValue(c.field.name, displayVal) : null;
 
-                                  // Normalize currency-like custom fields (Avg. CPM, Cost, Budget, etc.)
-                                  // so they always show a $ sign regardless of how the value was entered.
                                   if (formatted && isCurrencyFieldName(c.field.name)) {
                                     formatted = formatCurrencyField(formatted);
                                   }
 
+                                  const showZeroDecimalDots = formatted && isCurrencyFieldName(c.field.name) && isZeroDecimal(raw);
+
                                   content = formatted ? (
-                                    <span className="text-black">
-                                      {formatted}
-                                      {aggregatedDays && <span className="ml-1 text-xs text-violet-400 font-normal">Σ{aggregatedDays}d</span>}
+                                    <span className="text-black inline-block">
+                                      <span>
+                                        {formatted}
+                                        {aggregatedDays && <span className="ml-1 text-xs text-violet-400 font-normal">Σ{aggregatedDays}d</span>}
+                                      </span>
+                                      {showZeroDecimalDots && (
+                                        <span
+                                          className="block mt-0.5 text-gray-400 leading-none select-none"
+                                          style={{ letterSpacing: '2px' }}
+                                        >
+                                          ••••••••••
+                                        </span>
+                                      )}
                                     </span>
                                   ) : <span className="text-gray-300 italic text-xs">—</span>;
                                 }
