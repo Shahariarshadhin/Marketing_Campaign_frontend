@@ -23,6 +23,24 @@ function fmtMoney(v) {
   return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+const CURRENCY_FIELD_KEYWORDS = ['cpm', 'cpc', 'cpa', 'cost', 'budget', 'spent', 'price', 'revenue'];
+
+function isCurrencyFieldName(name) {
+  const key = String(name || '').toLowerCase().replace(/[^a-z]/g, '');
+  return CURRENCY_FIELD_KEYWORDS.some(k => key.includes(k));
+}
+
+// Ensures a $ prefix without altering the number's original decimal precision
+// (unlike fmtMoney, which forces 2 decimals — CPM values are often 3).
+function ensureCurrencyPrefix(str) {
+  if (str === null || str === undefined || str === '') return str;
+  const s = String(str).trim();
+  if (s === '—' || /[$€£¥]/.test(s)) return s; // already has a sign
+  const num = parseFloat(s.replace(/,/g, ''));
+  if (isNaN(num)) return s; // not numeric — leave alone
+  return `$${s}`;
+}
+
 const THOUSANDS_FIELDS = new Set(['impressions', 'reach', 'results', 'clicks', 'conversions', 'actions']);
 const PERCENT_FIELDS = new Set(['ctr']);
 
@@ -104,7 +122,7 @@ function ToolbarIconButton({ icon: Icon, label, onClick, disabled }) {
 }
 
 function exportCampaignsCSV(campaigns) {
-  const headers = ['Campaign', 'Delivery', 'Results', 'Actions', 'Cost per Result', 'Budget', 'Amount Spent', 'Impressions', 'Reach', 'Ends'];
+  const headers = ['Campaign', 'Delivery', 'Results', 'Actions', 'Cost per result', 'Budget', 'Amount spent', 'Impressions', 'Reach', 'Ends'];
   const rows = campaigns.map(c => [c.name, c.delivery, c.results, c.actions, c.costPerResult, c.budget, c.amountSpent, c.impressions, c.reach, c.endDate]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -159,7 +177,7 @@ function FilterBar({
             <span>Status: </span>
             <button onClick={() => setShowStatusMenu(v => !v)}
               className="flex items-center gap-0.5 font-semibold text-gray-800 hover:text-blue-600 transition">
-              {statusFilter === 'All' ? 'Active' : statusFilter}
+              {statusFilter}
               <ChevronDown size={11} className="ml-0.5" />
             </button>
             <button onClick={() => onStatusChange('All')} className="ml-1 hover:text-red-500 transition text-gray-400">
@@ -512,11 +530,12 @@ function RowResizeHandle({ rowId, currentHeight, onCommit, min = 4 }) {
 }
 
 // ─── Clips cell content to an exact pixel box, ignoring content size ───────
-function ClipCell({ height, className = '', children }) {
+function ClipCell({ height, className = '', align = 'left', children }) {
+  const alignClasses = align === 'right' ? 'justify-end text-right' : 'justify-start text-left';
   return (
     <div
       style={{ height, overflow: 'hidden' }}
-      className={`flex items-center min-w-0 ${className}`}
+      className={`flex items-center min-w-0 ${alignClasses} ${className}`}
     >
       <div className="min-w-0 w-full truncate">
         {children}
@@ -530,15 +549,18 @@ const BUILTIN_ORDERABLE = [
   'budget', 'amountSpent', 'impressions', 'reach', 'ends',
 ];
 
+const LEFT_ALIGN_KEYS = new Set(['checkbox', 'toggle', 'delivery', 'actions', 'name']);
+const isLeftAligned = (key) => LEFT_ALIGN_KEYS.has(key);
+
 ;
 
 const STATUS_DOT_COLORS = {
-  active:    'bg-green-500',
-  paused:    'bg-yellow-500',
-  learning:  'bg-blue-500',
-  error:     'bg-red-500',
+  active: 'bg-green-500',
+  paused: 'bg-yellow-500',
+  learning: 'bg-blue-500',
+  error: 'bg-red-500',
   completed: 'bg-gray-400',
-  draft:     'bg-gray-300',
+  draft: 'bg-gray-300',
   scheduled: 'bg-indigo-400',
 };
 
@@ -548,12 +570,12 @@ function getStatusDotColor(status) {
 }
 
 const STATUS_DELIVERY_LABELS = {
-  active:    'Active',
-  paused:    'Paused',
-  learning:  'Learning',
-  error:     'Error',
+  active: 'Active',
+  paused: 'Paused',
+  learning: 'Learning',
+  error: 'Error',
   completed: 'Completed',
-  draft:     'In draft',
+  draft: 'In draft',
   scheduled: 'Scheduled',
 }
 
@@ -660,9 +682,9 @@ export default function CampaignList({
     if (visibleColumns.delivery) orderableMap.delivery = { key: 'delivery', label: 'Delivery', width: 140 };
     if (visibleColumns.actions) orderableMap.actions = { key: 'actions', label: 'Actions', width: 110 };
     if (visibleColumns.results) orderableMap.results = { key: 'results', label: 'Results', width: 110 };
-    if (visibleColumns.costPerResult) orderableMap.costPerResult = { key: 'costPerResult', label: 'Cost per Result', width: 130 };
+    if (visibleColumns.costPerResult) orderableMap.costPerResult = { key: 'costPerResult', label: 'Cost per result', width: 130 };
     if (visibleColumns.budget) orderableMap.budget = { key: 'budget', label: 'Budget', width: 120 };
-    if (visibleColumns.amountSpent) orderableMap.amountSpent = { key: 'amountSpent', label: 'Amount Spent', width: 130 };
+    if (visibleColumns.amountSpent) orderableMap.amountSpent = { key: 'amountSpent', label: 'Amount spent', width: 130 };
     if (visibleColumns.impressions) orderableMap.impressions = { key: 'impressions', label: 'Impressions', width: 120 };
     if (visibleColumns.reach) orderableMap.reach = { key: 'reach', label: 'Reach', width: 110 };
     if (visibleColumns.ends) orderableMap.ends = { key: 'ends', label: 'Ends', width: 110 };
@@ -794,9 +816,9 @@ export default function CampaignList({
                   { key: 'delivery', label: 'Delivery' },
                   { key: 'actions', label: 'Actions' },
                   { key: 'results', label: 'Results' },
-                  { key: 'costPerResult', label: 'Cost per Result' },
+                  { key: 'costPerResult', label: 'Cost per result' },
                   { key: 'budget', label: 'Budget' },
-                  { key: 'amountSpent', label: 'Amount Spent' },
+                  { key: 'amountSpent', label: 'Amount spent' },
                   { key: 'impressions', label: 'Impressions' },
                   { key: 'reach', label: 'Reach' },
                   { key: 'ends', label: 'Ends' },
@@ -906,14 +928,14 @@ export default function CampaignList({
                           onDragOver={(e) => isOrderable && handleDragOver(e, c.key)}
                           onDrop={() => isOrderable && handleDrop(c.key)}
                           onDragEnd={handleDragEnd}
-                          className={`relative px-4 py-3  text-center text-xs font-bold text-black border border-gray-200 overflow-hidden whitespace-nowrap
-        ${isOrderable ? 'cursor-move' : ''}
-        ${dragOverKey === c.key && draggedKey !== c.key ? 'bg-blue-100' : ''}
-        ${draggedKey === c.key ? 'opacity-40' : ''}`}
+                          className={`relative px-4 py-3 ${isLeftAligned(c.key) ? 'text-left' : 'text-right'} text-xs font-bold text-black border border-gray-200 overflow-hidden whitespace-nowrap
+  ${isOrderable ? 'cursor-move' : ''}
+  ${dragOverKey === c.key && draggedKey !== c.key ? 'bg-blue-100' : ''}
+  ${draggedKey === c.key ? 'opacity-40' : ''}`}
                         >
                           {c.key === 'checkbox' && <input type="checkbox" className="rounded" />}
                           {c.key !== 'checkbox' && !isLastColEye && (
-                            <span className="flex items-center gap-1">
+                            <span className={`flex items-center gap-1 ${isLeftAligned(c.key) ? 'justify-start' : 'justify-end'}`}>
                               {isOrderable && <GripVertical size={11} className="text-black shrink-0" />}
                               {c.label}
                             </span>
@@ -1078,14 +1100,19 @@ export default function CampaignList({
                                     if (rec._aggregated && rec.days > 1) aggregatedDays = rec.days;
                                   }
 
-                                  // Fall back to the campaign-level custom field value if no daily override exists
                                   if (raw === null || raw === undefined || raw === '') {
                                     raw = getCF(campaign.customFields, c.field.name) ?? getCF(campaign.customFieldsData, c.field.name);
                                     aggregatedDays = null;
                                   }
 
                                   const displayVal = fmtCFVal(raw);
-                                  const formatted = displayVal ? formatFieldValue(c.field.name, displayVal) : null;
+                                  let formatted = displayVal ? formatFieldValue(c.field.name, displayVal) : null;
+
+                                  // Normalize currency-like custom fields (Avg. CPM, Cost, Budget, etc.)
+                                  // so they always show a $ sign regardless of how the value was entered.
+                                  if (formatted && isCurrencyFieldName(c.field.name)) {
+                                    formatted = ensureCurrencyPrefix(formatted);
+                                  }
 
                                   content = formatted ? (
                                     <span className="text-black">
@@ -1098,7 +1125,7 @@ export default function CampaignList({
 
                             return (
                               <td key={c.key} className="relative border border-gray-200 p-0">
-                                <ClipCell height={rh} className="px-4">
+                                <ClipCell height={rh} className="px-4" align={isLeftAligned(c.key) ? 'left' : 'right'}>
                                   {content}
                                 </ClipCell>
                                 {idx === 0 && (
