@@ -32,13 +32,13 @@ function isCurrencyFieldName(name) {
 
 // Ensures a $ prefix without altering the number's original decimal precision
 // (unlike fmtMoney, which forces 2 decimals — CPM values are often 3).
-function ensureCurrencyPrefix(str) {
+function formatCurrencyField(str) {
   if (str === null || str === undefined || str === '') return str;
   const s = String(str).trim();
-  if (s === '—' || /[$€£¥]/.test(s)) return s; // already has a sign
-  const num = parseFloat(s.replace(/,/g, ''));
+  if (s === '—') return s;
+  const num = parseFloat(s.replace(/[$€£¥,]/g, ''));
   if (isNaN(num)) return s; // not numeric — leave alone
-  return `$${s}`;
+  return `$${num.toFixed(2)}`;
 }
 
 const THOUSANDS_FIELDS = new Set(['impressions', 'reach', 'results', 'clicks', 'conversions', 'actions']);
@@ -1111,7 +1111,7 @@ export default function CampaignList({
                                   // Normalize currency-like custom fields (Avg. CPM, Cost, Budget, etc.)
                                   // so they always show a $ sign regardless of how the value was entered.
                                   if (formatted && isCurrencyFieldName(c.field.name)) {
-                                    formatted = ensureCurrencyPrefix(formatted);
+                                    formatted = formatCurrencyField(formatted);
                                   }
 
                                   content = formatted ? (
